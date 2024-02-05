@@ -1,0 +1,25 @@
+{
+  "name": "site-builder",
+  "version": "1.0.0",
+  "description": "Site builder",
+  "private": true,
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "account-ui": "*",
+    "pinia": "^2.1.6",
+    "site-ui": "*",
+    "vue-demi": "^0.14.6",
+    "vue-draggable-next": "^2.2.1",
+    "vue-scrollto": "^2.20.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.39.0",
+    "eslint-config-custom-vue": "*",
+    "vue": "^3.3.4"
+  }
+}

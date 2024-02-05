@@ -1,0 +1,71 @@
+{
+  "name": "account",
+  "version": "1.0.0",
+  "description": "Account",
+  "private": true,
+  "scripts": {
+    "start": "vite & vite build --watch",
+    "build": "vite build && size-limit",
+    "preview": "vite preview",
+    "test": "vitest --run",
+    "test:watch": "vitest watch",
+    "test:e2e": "playwright test",
+    "lint": "eslint . --ext .vue,.js,.cjs --fix",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.13",
+    "@heroicons/vue": "^2.0.18",
+    "@sentry/browser": "^5.30.0",
+    "@sentry/integrations": "^5.30.0",
+    "@tanstack/vue-query": "^4.29.13",
+    "@vee-validate/zod": "^4.11.8",
+    "account-ui": "^1.0.0",
+    "currency": "^1.0.0",
+    "font-ui": "^1.0.0",
+    "lodash.isequal": "^4.5.0",
+    "pinia": "^2.0.32",
+    "preline": "^1.8.0",
+    "site-builder": "^1.0.0",
+    "site-ui": "*",
+    "vee-validate": "^4.11.8",
+    "vue": "^3.2.47",
+    "vue-accessible-color-picker": "^4.1.2",
+    "vue-draggable-next": "2.2.1",
+    "vue-router": "^4.1.6",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@pinia/testing": "^0.1.2",
+    "@playwright/test": "^1.31.1",
+    "@rushstack/eslint-patch": "^1.2.0",
+    "@size-limit/file": "^8.2.4",
+    "@tailwindcss/forms": "^0.5.3",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vue/eslint-config-prettier": "^7.1.0",
+    "@vue/test-utils": "^2.3.0",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.34.0",
+    "eslint-config-custom-vue": "^1.0.0",
+    "eslint-plugin-vue": "^9.9.0",
+    "jsdom": "^21.1.0",
+    "postcss": "^8.4.23",
+    "postcss-import": "^15.1.0",
+    "postcss-mixins": "^9.0.4",
+    "postcss-nested": "^6.0.1",
+    "postcss-simple-vars": "^7.0.1",
+    "prettier": "^2.8.4",
+    "simple-git-hooks": "^2.9.0",
+    "size-limit": "^8.2.4",
+    "tailwindcss": "^3.3.2",
+    "vite": "^4.1.4",
+    "vite-svg-loader": "^4.0.0",
+    "vitest": "^0.29.1"
+  },
+  "size-limit": [
+    {
+      "limit": "500 kB",
+      "path": "dist/assets/*.js"
+    }
+  ]
+}

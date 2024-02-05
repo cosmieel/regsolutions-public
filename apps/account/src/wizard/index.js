@@ -1,0 +1,9 @@
+export { default as WizardStepBusiness } from './step-business/views/step-business.vue';
+export { default as WizardStepName } from './step-name/views/step-name.vue';
+export { default as WizardStepColor } from './step-color/views/step-color.vue';
+export { default as WizardStepDescription } from './step-description/views/step-description.vue';
+export { default as WizardStepDomain } from './step-domain/views/step-domain.vue';
+export { default as WizardStepLogo } from './step-logo/views/step-logo.vue';
+export { default as WizardStepSuccess } from './step-success/views/step-success.vue';
+export { default as WizardWelcome } from './views/wizard-welcome.vue';
+export { default as WizardMain } from './views/wizard-main.vue';

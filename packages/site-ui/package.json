@@ -1,0 +1,22 @@
+{
+  "name": "site-ui",
+  "version": "1.0.0",
+  "description": "Site UI",
+  "private": true,
+  "main": "./src/index.js",
+  "scripts": {},
+  "devDependencies": {
+    "dotenv": "^16.3.1",
+    "eslint": "^8.39.0",
+    "eslint-config-custom-vue": "*",
+    "vue": "^3.3.4"
+  },
+  "dependencies": {
+    "@vuelidate/core": "^2.0.2",
+    "@vuelidate/validators": "^2.0.2",
+    "document-ready": "^2.0.2",
+    "pinia": "^2.1.6",
+    "postscribe": "^2.0.8",
+    "swiper": "^10.0.4"
+  }
+}

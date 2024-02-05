@@ -1,0 +1,24 @@
+@import 'site-ui/src/colors/colors.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.ds-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.ds-link:hover {
+  color: var(--font-accent);
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Рег.решения</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+    <script type="text/javascript" >
+        const isProduction = JSON.parse("%PROD%")
+
+        if (isProduction) {
+            // Yndex Metrika
+            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)}; m[i].l=1*new Date(); for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }} k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)}) (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym"); ym(96239047, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
+        }
+
+      // Replain chat
+        window.replainSettings = { id: '0f6799c2-80bb-40fa-941d-cda39250f7c8' };
+        (function(u){var s=document.createElement('script');s.async=true;s.src=u;
+            var x=document.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);
+        })('https://widget.replain.cc/dist/client.js');
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/96239047" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  </body>
+</html>

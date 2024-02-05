@@ -1,0 +1,11 @@
+{
+  "name": "font-ui",
+  "version": "1.0.0",
+  "description": "Font ui",
+  "main": "./index.css",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED"
+}

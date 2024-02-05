@@ -1,0 +1,63 @@
+.ui-tags-input {
+  @apply relative;
+
+  &__input {
+    @apply form-input py-[11px] px-[15px] block w-full bg-gray-50 border border-gray-200 max-h-10 rounded-lg text-sm text-gray-700 leading-4 relative;
+
+    &:hover {
+      @apply ring-1 ring-offset-0 ring-blue-500 border-blue-500;
+    }
+
+    &:focus {
+      @apply border-blue-500 outline-none ring-1 bg-white;
+    }
+
+    &::placeholder {
+      @apply text-gray-400;
+    }
+
+    &_invalid {
+      @apply border-red-100 ring-2 ring-red-100;
+
+      &:hover {
+        @apply border-red-100 ring-2 ring-red-100;
+      }
+
+      &:focus {
+        @apply border-red-100 ring-2 ring-red-100;
+      }
+    }
+  }
+
+  &__label {
+    @apply block text-xs text-[13px] mb-2 text-left text-gray-500;
+  }
+
+  &__input-wrapper {
+    @apply relative;
+  }
+
+  &__error-message {
+    @apply text-sm text-left text-red-400 mt-3 leading-none;
+  }
+
+  &__tags {
+    @apply inline-flex absolute left-0 bottom-0 gap-[7px] mx-4 pt-2 pb-4 mb-[-8px] max-w-[65%] overflow-x-auto;
+
+    &_custom-h-scroll {
+      @apply bottom-auto top-8 pt-0 pb-1;
+    }
+  }
+
+  &__tag {
+    @apply inline-flex justify-center items-center whitespace-nowrap rounded-[100px] border border-gray-300 px-[7px] py-[3px] text-xs font-medium text-gray-700 bg-white;
+  }
+
+  &__delete {
+    @apply w-[14px] h-[14px] rounded-full bg-gray-200 ml-[5px];
+
+    svg {
+      @apply mx-auto;
+    }
+  }
+}
