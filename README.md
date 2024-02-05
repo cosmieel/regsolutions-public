@@ -2,7 +2,7 @@
 
 <img src="https://static.tildacdn.com/tild3363-3434-4531-b839-653065656338/logo_RegSolutions.svg" width="200" align="right">
 
-[solutions.reg.ru](https://https://solutions.reg.ru/)
+[solutions.reg.ru](https://account.reg.solutions/)
 
 It's monorepo powered by [Turborepo](https://turborepo.org) with [npm](https://www.npmjs.com/) as a package manager.
 
