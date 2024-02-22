@@ -11,12 +11,7 @@
     <span v-if="cartStorage.counter" class="ds-cart__counter">{{ cartStorage.counter }}</span>
 
     <ds-modal v-if="modal" @close="modal = false">
-      <DsCartList
-        v-show="isCartList"
-        :catalog-items="catalogItems"
-        :storage-host="storageHost"
-        @click="clickCardList"
-      />
+      <DsCartList v-show="isCartList" :catalogs="catalogs" @click="clickCardList" />
       <DsOrderForm
         v-show="!isCartList"
         :checkout="checkout"
@@ -38,13 +33,10 @@ import DsCartList from 'site-ui/src/design-system/ds-cart/ds-cart-list.vue';
 import DsModal from 'site-ui/src/design-system/ds-modal/ds-modal.vue';
 import { notificationManager } from 'site-ui/src/design-system/ds-notification/manager/notification-manager.js';
 import DsOrderForm from 'site-ui/src/design-system/ds-order-form/ds-order-form.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 import { ref, computed, toRaw } from 'vue';
-
-const siteMode = useSiteMode();
-
-const cartStorage = useCartStorage();
-cartStorage.init();
+import { mapForBackend } from './maps/map-for-backend.js';
 
 const property = defineProps({
   cart: {
@@ -57,9 +49,9 @@ const property = defineProps({
     default: () => [],
   },
 
-  storageHost: {
-    type: String,
-    default: '',
+  catalogs: {
+    type: Array,
+    default: () => [],
   },
 
   action: {
@@ -73,6 +65,11 @@ const property = defineProps({
   },
 });
 
+const siteMode = useSiteMode();
+
+const cartStorage = useCartStorage();
+cartStorage.init(property.catalogItems);
+
 const modal = ref(false);
 const isCartList = ref(true);
 const price = ref(null);
@@ -80,14 +77,21 @@ const oldPrice = ref(null);
 
 const privacyText = computed(() => {
   const rulesLink = property.checkout.terms?.rulesLink
-    ? `<a class='ds-link' href="${property.checkout.terms.rulesLink}" target="_blank">правилами пользования сайтом</a>`
-    : 'правилами пользования сайтом';
+    ? `<a class='ds-link' href="${property.checkout.terms.rulesLink}" target="_blank">${localizer.t(
+        'order.rules'
+      )}</a>`
+    : localizer.t('order.rules');
 
   const policyLink = property.checkout.terms?.policyLink
-    ? `<a class='ds-link' href="${property.checkout.terms.policyLink}" target="_blank">политикой обработки персональных данных</a>`
-    : 'политикой обработки персональных данных';
+    ? `<a class='ds-link' href="${
+        property.checkout.terms.policyLink
+      }" target="_blank">${localizer.t('order.policy')}</a>`
+    : localizer.t('order.policy');
 
-  return `Отправляя заявку, вы соглашаетесь с ${rulesLink} и ${policyLink}`;
+  return localizer.t('order.privacy', {
+    rules: rulesLink,
+    policy: policyLink,
+  });
 });
 
 function openCart() {
@@ -107,7 +111,7 @@ function clickCardList(prices) {
 async function sendForm(formData) {
   const data = {
     fields: formData,
-    items: toRaw(cartStorage.storage),
+    items: mapForBackend(toRaw(cartStorage.storage)),
     form: {
       type: 'cart',
     },
@@ -128,7 +132,7 @@ async function sendForm(formData) {
       item: {
         type: 'plain',
         icon: 'checkmark',
-        title: 'Заказ отправлен',
+        title: localizer.t('notifier.order.success'),
       },
     });
 
@@ -141,7 +145,7 @@ async function sendForm(formData) {
       item: {
         type: 'plain',
         icon: 'warning-filled',
-        title: 'Заказ не отправлен',
+        title: localizer.t('notifier.order.error'),
       },
     });
   }

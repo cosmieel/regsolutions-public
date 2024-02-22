@@ -3,13 +3,8 @@
     <ds-container :title="block.title" :backed="block.backed">
       <div class="b-video__wrapper" @click="videoInit = true">
         <template v-if="!videoInit">
-          <img
-            class="b-video__image"
-            loading="lazy"
-            :src="'https://i.ytimg.com/vi/' + videoId + '/maxresdefault.jpg'"
-            alt="preview-image"
-          />
-          <button class="b-video__button" aria-label="Запустить видео">
+          <DsImage :path="videoCover" loading="lazy" class="b-video__image" />
+          <button class="b-video__button" :aria-label="localizer.t('video.start')">
             <svg width="68" height="48" viewBox="0 0 68 48">
               <path
                 class="b-video__button-shape"
@@ -35,8 +30,10 @@
 
 <script setup>
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
+import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { getYoutubeId } from 'site-ui/src/services/get-youtube-id/get-youtube-id.js';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const property = defineProps({
   block: {
@@ -48,6 +45,10 @@ const property = defineProps({
 const videoId = getYoutubeId(property.block.url);
 
 const videoInit = ref(false);
+
+const videoCover = computed(() => {
+  return property.block.cover || `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+});
 </script>
 
 <style lang="postcss" scoped>

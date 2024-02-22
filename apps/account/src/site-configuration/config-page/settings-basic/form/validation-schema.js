@@ -14,13 +14,17 @@ import {
   MAX_LENGTH_SLUG,
 } from './constants.js';
 
-export const validationSchema = toTypedSchema(
-  objectSchema({
-    [TITLE_KEY]: stringSchema().max(MAX_LENGTH_TITLE, getMaxLengthErrorMessage(MAX_LENGTH_TITLE)),
-    [SLUG_KEY]: requiredString().max(MAX_LENGTH_SLUG, getMaxLengthErrorMessage(MAX_LENGTH_SLUG)),
-    [DESCRIPTION_KEY]: stringSchema().max(
-      MAX_LENGTH_DESCRIPTION,
-      getMaxLengthErrorMessage(MAX_LENGTH_DESCRIPTION)
-    ),
-  })
-);
+export const validationSchema = (isMainPage) =>
+  toTypedSchema(
+    objectSchema({
+      [TITLE_KEY]: stringSchema().max(MAX_LENGTH_TITLE, getMaxLengthErrorMessage(MAX_LENGTH_TITLE)),
+      [SLUG_KEY]: (isMainPage ? stringSchema() : requiredString()).max(
+        MAX_LENGTH_SLUG,
+        getMaxLengthErrorMessage(MAX_LENGTH_SLUG)
+      ),
+      [DESCRIPTION_KEY]: stringSchema().max(
+        MAX_LENGTH_DESCRIPTION,
+        getMaxLengthErrorMessage(MAX_LENGTH_DESCRIPTION)
+      ),
+    })
+  );

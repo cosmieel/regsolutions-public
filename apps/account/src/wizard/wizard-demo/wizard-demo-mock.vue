@@ -16,7 +16,7 @@
       </div>
       <div class="wizard-demo-mock__url">
         <input
-          v-model.trim="wizardStore.wizardResult.domain"
+          v-model.trim="domain"
           type="text"
           class="wizard-demo-mock__url-input"
           placeholder="Домен"
@@ -33,6 +33,7 @@
 </template>
 
 <script setup>
+import { formatDomain } from 'account/src/utility/formatters/domain.js';
 import { UiIcon } from 'account-ui';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -45,6 +46,8 @@ const route = useRoute();
 const needControls = computed(() => {
   return route.name !== 'wizardStepBusiness';
 });
+
+const domain = computed(() => formatDomain(wizardStore.wizardResult.domain));
 </script>
 
 <style lang="postcss" scoped>

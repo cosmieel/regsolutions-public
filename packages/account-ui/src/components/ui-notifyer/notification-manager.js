@@ -44,6 +44,7 @@ export class NotificationManager {
    * @property {string | null} message - Text message
    * @property {number} timeOut - Time to hide
    * @property {string} icon - Icon of the left side. Accept icon name
+   * @property {object=} meta - Metadata
    * @property {Action | undefined} action - Action component
    * @property {function} onTimerCompleted - Call function after timer completed
    *
@@ -61,6 +62,7 @@ export class NotificationManager {
         message: options.message || null,
         timeOut: options.timeOut ?? TIMEOUT_VALUE,
         action: options.action || null,
+        meta: options.meta || null,
         onTimerCompleted: options.onTimerCompleted || null,
       });
     }
@@ -125,5 +127,12 @@ export class NotificationManager {
    */
   getById(id) {
     return this._list.value.find((item) => item.id === id);
+  }
+
+  /**
+   * @param {CreateParams[]} list - List of notification
+   */
+  changeList(list) {
+    this._list.value = list;
   }
 }

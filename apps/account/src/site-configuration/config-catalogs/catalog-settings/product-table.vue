@@ -1,5 +1,5 @@
 <template>
-  <UiTable class="product-table">
+  <UiTable class="product-table" :list="catalogItemsList" @change-order="onChangeOrder">
     <template #ui-table-head>
       <tr>
         <th scope="col" class="product-table__th _main">
@@ -69,7 +69,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['delete-catalog-item', 'update-active-state', 'duplicate-catalog-item']);
+const emit = defineEmits([
+  'delete-catalog-item',
+  'update-active-state',
+  'duplicate-catalog-item',
+  'update-order',
+]);
 
 const {
   selectedItems,
@@ -102,6 +107,8 @@ const onUpdateActiveState = (activeValue, catalogItemId) => {
 const getCurrency = (item) => {
   return useCurrencySymbol(props.currency, item?.unit || props?.unit || '');
 };
+
+const onChangeOrder = () => emit('update-order');
 </script>
 
 <style lang="postcss" scoped>

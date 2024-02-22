@@ -3,7 +3,7 @@
     :title="CARD_TITLE"
     :action-disabled="isActionDisabled"
     :action-pending="isSubmitLoading"
-    description='description="Добавленый код будет применен ко всем страницам на сайте"'
+    description="Добавленый код будет применен ко всем страницам на сайте"
     @on-save="handleSave()"
   >
     <FormView />

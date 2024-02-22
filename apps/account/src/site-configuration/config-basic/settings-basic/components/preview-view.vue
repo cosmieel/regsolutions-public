@@ -2,7 +2,7 @@
   <SearchResultPreview
     :path="currentSiteData?.logo"
     :name="formValues[NAME_KEY]"
-    :domain="currentSiteData.domain"
+    :domain="currentSiteData.domain || currentSiteData.domainFree"
     :description="formValues[DESCRIPTION_KEY]"
   />
 </template>

@@ -1,8 +1,18 @@
 <template>
   <CardWrapper title="Настройка блока" :has-changed="hasChanged" @cancel="cancel" @save="save">
     <FeildHeadline title="Основное" />
-    <FieldGroup title="Ссылка" tooltip="Ссылка на видео">
+    <FieldGroup title="Ссылка" tooltip="Ссылка на видео в YouTube">
       <ItemInput v-model="data.url" />
+    </FieldGroup>
+    <FieldGroup title="Обложка" tooltip="Изображение для предпросмотра видео. Формат PNG/JPEG">
+      <ItemPicture
+        v-if="data.cover"
+        v-model="data.cover"
+        :url="data.cover"
+        :disabled="true"
+        @delete="deleteImage"
+      />
+      <ItemUploader v-else @upload="onUpload" />
     </FieldGroup>
     <FieldDivider />
     <FeildHeadline title="Дополнительное" />
@@ -17,13 +27,15 @@
 
 <script setup>
 import { useSiteStorage } from 'site-builder/src/site-storage/site-storage';
-import { ref, computed } from 'vue';
+import { ref, computed, inject } from 'vue';
 import CardWrapper from '../../components/card-wrapper.vue';
 import FieldDivider from '../../components/field-divider.vue';
 import FieldGroup from '../../components/field-group.vue';
 import FeildHeadline from '../../components/field-headline.vue';
 import ItemChoice from '../../components/item-choice.vue';
 import ItemInput from '../../components/item-input.vue';
+import ItemPicture from '../../components/item-picture.vue';
+import ItemUploader from '../../components/item-uploader.vue';
 
 const property = defineProps({
   block: {
@@ -31,6 +43,8 @@ const property = defineProps({
     required: true,
   },
 });
+
+const uploadImage = inject('uploadImage');
 
 const emit = defineEmits(['save', 'cancel']);
 
@@ -51,6 +65,17 @@ function save() {
 function cancel() {
   data.value = siteStorage.getBlockData(property.block);
   emit('cancel');
+}
+
+// Дочерняя логика
+
+async function onUpload(file) {
+  const url = await uploadImage(file);
+  data.value.cover = url;
+}
+
+function deleteImage() {
+  delete data.value.cover;
 }
 
 defineExpose({

@@ -20,6 +20,7 @@
     <UiModalFooter>
       <UiPrimarySecondaryButtons
         :disabled-primary="isCatalogCsvLoading"
+        :pending-primary="isCatalogCsvLoading"
         @on-primary-click="onCsvImport"
         @on-secondary-click="handleClose"
       >

@@ -11,6 +11,7 @@ import {
   NAME_KEY,
   PRICE_KEY,
   PRICE_OLD_KEY,
+  ORDER_INDEX_KEY,
   // PRICE_UNIT_KEY,
   SHORT_DESCRIPTION,
   SKU_KEY,
@@ -25,6 +26,7 @@ const DEFAULT_VALUES = {
   [NAME_KEY]: '',
   [PRICE_KEY]: '',
   [PRICE_OLD_KEY]: '',
+  [ORDER_INDEX_KEY]: '1',
   // [PRICE_UNIT_KEY]: '',
   [TAGS_KEY]: [],
   [CATEGORY_KEY]: '',
@@ -47,6 +49,9 @@ export const getInitialValues = (catalogId, data) => {
       ? String(data[PRICE_OLD_KEY])
       : DEFAULT_VALUES[PRICE_OLD_KEY],
     // [PRICE_UNIT_KEY]: data?.[PRICE_UNIT_KEY] || DEFAULT_VALUES[PRICE_UNIT_KEY],
+    [ORDER_INDEX_KEY]: data?.[ORDER_INDEX_KEY]
+      ? String(data[ORDER_INDEX_KEY])
+      : DEFAULT_VALUES[ORDER_INDEX_KEY],
     [TAGS_KEY]: data?.[TAGS_KEY] || DEFAULT_VALUES[TAGS_KEY],
     [CATEGORY_KEY]: data?.[CATEGORY_KEY] || DEFAULT_VALUES[CATEGORY_KEY],
     [COUNT_KEY]: data?.[COUNT_KEY] || DEFAULT_VALUES[COUNT_KEY],
@@ -67,6 +72,7 @@ export const convertDataForRequest = (data) => {
     [PRICE_KEY]: isNil(data[PRICE_KEY]) ? undefined : Number(data[PRICE_KEY]),
     [PRICE_OLD_KEY]: isNil(data[PRICE_OLD_KEY]) ? undefined : Number(data[PRICE_OLD_KEY]),
     // [PRICE_UNIT_KEY]: data[PRICE_UNIT_KEY] ?? undefined,
+    [ORDER_INDEX_KEY]: isNil(data[ORDER_INDEX_KEY]) ? undefined : Number(data[ORDER_INDEX_KEY]),
     [TAGS_KEY]: data[TAGS_KEY],
     [CATEGORY_KEY]: data[CATEGORY_KEY] ?? undefined,
     [COUNT_KEY]: isNil(data[COUNT_KEY]) ? undefined : Number(data[COUNT_KEY]),

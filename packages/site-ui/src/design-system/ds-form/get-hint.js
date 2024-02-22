@@ -1,17 +1,19 @@
+import { localizer } from 'site-ui/src/localizer/localizer.js';
+
 export function getHint(name, validator) {
   if (!validator[name] || !validator[name].$error) {
     return;
   }
 
   if (validator[name].required?.$invalid) {
-    return 'Поле обязательно';
+    return localizer.t('form.required');
   }
 
   if (validator[name].email?.$invalid) {
-    return 'E-mail неверный. Проверьте его написание';
+    return localizer.t('form.email');
   }
 
   if (validator[name].phone?.$invalid) {
-    return 'Телефон неверный. Проверьте написание номера';
+    return localizer.t('form.phone');
   }
 }

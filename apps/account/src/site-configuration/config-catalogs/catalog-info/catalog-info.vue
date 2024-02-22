@@ -1,6 +1,14 @@
 <template>
   <div class="catalog-info">
     <div class="catalog-info__item">
+      <UiInput
+        v-model="catalogDataModel.orderIndex"
+        class="catalog-info__input catalog-info__input_order"
+        :type="'text'"
+        :placeholder="''"
+        :error-message="''"
+        :label="'Очередность'"
+      />
       <div class="catalog-info__item-inner">
         <UiInput
           v-model="catalogDataModel.name"
@@ -19,6 +27,25 @@
           :error-message="''"
           :label="'URL'"
           :max-length="'150'"
+        />
+      </div>
+    </div>
+
+    <div class="catalog-info__item">
+      <div class="catalog-info__item-inner">
+        <UiSelect
+          v-model="catalogDataModel.currency"
+          label="Валюта*"
+          :options="currencySymbolOptions"
+        />
+        <UiInput
+          v-model="catalogDataModel.unit"
+          class="catalog-info__input"
+          label="Единица товара"
+          type="text"
+          placeholder="/шт."
+          max-length="50"
+          :error-message="''"
         />
       </div>
     </div>
@@ -57,37 +84,22 @@
     <div v-if="catalogDataModel.checkout.type == 'FORM'" class="catalog-info__item">
       <CatalogForm :store-type="'catalog'" />
     </div>
-    <div class="catalog-info__item">
-      <div class="catalog-info__item-inner">
-        <UiSelect
-          v-model="catalogDataModel.currency"
-          label="Валюта*"
-          :options="currencySymbolOptions"
-        />
-        <UiInput
-          v-model="catalogDataModel.unit"
-          class="catalog-info__input"
-          label="Единица товара"
-          type="text"
-          placeholder="/шт."
-          max-length="50"
-          :error-message="''"
-        />
-      </div>
-    </div>
+
     <div class="catalog-info__item">
       <UiTextarea
         v-model="catalogDataModel.description"
         label="Описание"
-        counter="300"
         placeholder="Описание"
         :error-message="''"
         :max-length="'300'"
-      />
-      <div class="catalog-info__note">
-        Дополнительная информация о товарах. Описание будет расположено в карточке под названием
-      </div>
+        :rows="2"
+      >
+        <template #afterLabel>
+          <CatalogDescriptionTooltip />
+        </template>
+      </UiTextarea>
     </div>
+
     <div class="catalog-info__item">
       <FileSection
         image-shape="full"
@@ -109,6 +121,7 @@
 import { currencySymbolOptions } from 'account/src/utility/options/currency';
 import { UiInput, UiSelect, UiTextarea } from 'account-ui';
 import { computed, ref } from 'vue';
+import CatalogDescriptionTooltip from './catalog-description-tooltip.vue';
 import FileSection from '../../../components/file-section.vue';
 import CatalogForm from '../../../components/order-form/order-form.vue';
 
@@ -153,12 +166,24 @@ const removeCoverImage = () => emit('remove-file');
 .catalog-info {
   @apply space-y-6;
 
-  &__item-inner {
-    @apply columns-2 gap-5;
+  &__item {
+    &:first-child {
+      @apply flex gap-3;
+
+      .catalog-info__item-inner {
+        @apply w-full;
+      }
+    }
   }
 
-  &__note {
-    @apply text-sm text-gray-400 leading-4 mt-2;
+  &__item-inner {
+    @apply columns-2 gap-3;
+  }
+
+  &__input {
+    &_order {
+      @apply max-w-[80px];
+    }
   }
 }
 </style>

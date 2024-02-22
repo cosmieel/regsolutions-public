@@ -60,13 +60,14 @@
 
 <script setup>
 import { useBreakPoint } from 'site-ui/src/break-point/break-point';
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
-import { useImageSizer } from 'site-ui/src/design-system/ds-image/use-image-sizer.js';
 import DsSlide from 'site-ui/src/design-system/ds-slider/ds-slide.vue';
 import DsSlider from 'site-ui/src/design-system/ds-slider/ds-slider.vue';
-import { computed } from 'vue';
+import { OPTIONS_KEY } from 'site-ui/src/services/constants/constants.js';
+import { getConstructedUrl } from 'site-ui/src/services/get-constructed-url/get-constructed-url.js';
+import { computed, inject } from 'vue';
 
 const breakPoint = useBreakPoint();
 
@@ -75,21 +76,18 @@ defineProps({
     type: Object,
     required: true,
   },
-
-  storageHost: {
-    type: String,
-    default: '',
-  },
 });
+
+const { hosts } = inject(OPTIONS_KEY);
 
 const controls = computed(() => {
   return breakPoint.isMobileAll ? '' : 'secondary-inverse';
 });
 
 function getStyle(img) {
-  const mediaUrl = useImageSizer(img, config.resize.banner.content);
+  const constructedUrl = getConstructedUrl(img, hosts, resizeConfig.banner.content);
 
-  return `background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), center/cover url('${mediaUrl.value}');`;
+  return `background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), center/cover url('${constructedUrl}');`;
 }
 
 function getButtonColor(length, index) {

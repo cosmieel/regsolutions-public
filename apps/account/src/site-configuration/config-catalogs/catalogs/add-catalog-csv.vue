@@ -2,6 +2,9 @@
   <div class="add-catalog-csv">
     <UiDropzone :accept="[FILE_DOCUMENT_TYPES.csv]" @drop="$emit('get-file-data', $event)">
       <template #description> Загрузите каталог с товарами </template>
+      <template #acceptedFilesDescription="{ acceptedFileLabels }">
+        Формат {{ acceptedFileLabels.join(' ') }}
+      </template>
     </UiDropzone>
 
     <div class="add-catalog-csv__download">

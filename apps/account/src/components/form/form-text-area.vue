@@ -8,13 +8,17 @@
     :is-disabled="isDisabled"
     :error-message="field.errorMessage"
     :counter="counter"
-  />
+  >
+    <template v-if="hasAfterLabelSlot" #afterLabel>
+      <slot name="afterLabel" />
+    </template>
+  </UiTextarea>
 </template>
 
 <script setup>
 import { UiTextarea } from 'account-ui';
 import { useField } from 'vee-validate';
-import { reactive } from 'vue';
+import { computed, reactive, useSlots } from 'vue';
 
 const props = defineProps({
   name: {
@@ -52,6 +56,10 @@ const props = defineProps({
     default: false,
   },
 });
+
+const slots = useSlots();
+
+const hasAfterLabelSlot = computed(() => !!slots.afterLabel);
 
 const field = reactive(
   useField(props?.name || '', undefined, {

@@ -185,7 +185,9 @@ export const useBuilderFrameStore = defineStore('builderFrameStore', () => {
   async function fetchCatalogs() {
     let catalogs;
 
-    const catalogsList = await catalogConfigurationStore.fetchCatalogs(route.params.siteId);
+    const catalogsList = await catalogConfigurationStore.fetchCatalogs(route.params.siteId, {
+      active: true,
+    });
 
     const clonedCatalogsList = structuredClone(toRaw(catalogsList));
 
@@ -213,7 +215,8 @@ export const useBuilderFrameStore = defineStore('builderFrameStore', () => {
   async function fetchCatalogItems(siteId, catalogId) {
     const catalogItemsList = await catalogItemsConfigurationStore.fetchCatalogItems(
       siteId,
-      Number(catalogId)
+      Number(catalogId),
+      { active: true }
     );
 
     const clonedCatalogItemsList = structuredClone(toRaw(catalogItemsList));
@@ -241,17 +244,6 @@ export const useBuilderFrameStore = defineStore('builderFrameStore', () => {
     if (!clonedCheckout?.fields?.length) {
       return currentСheckout;
     }
-
-    clonedCheckout.fields = clonedCheckout?.fields?.map((field) => {
-      if (field?.type === 'tel') {
-        return {
-          ...field,
-          type: 'phone',
-        };
-      }
-
-      return field;
-    });
 
     return clonedCheckout;
   }

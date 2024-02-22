@@ -1,8 +1,12 @@
 <template>
   <div class="ds-reg-partner">
-    <span class="ds-reg-partner__text">Сделано на</span>
+    <span class="ds-reg-partner__text">{{ localizer.t('footer.made') }}</span>
 
-    <a href="https://solutions.reg.ru" target="_blank" class="ds-reg-partner__link">
+    <a
+      href="https://www.reg.ru/web-sites/regsolutions"
+      target="_blank"
+      class="ds-reg-partner__link"
+    >
       <svg
         width="147"
         height="20"
@@ -62,6 +66,10 @@
     </a>
   </div>
 </template>
+
+<script setup>
+import { localizer } from 'site-ui/src/localizer/localizer';
+</script>
 
 <style lang="postcss" scoped>
 @import 'site-ui/src/tokens/ui-tokens.css';

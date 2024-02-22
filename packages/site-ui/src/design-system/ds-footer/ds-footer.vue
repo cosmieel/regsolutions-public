@@ -2,15 +2,11 @@
   <footer class="ds-footer" :[dataEdit]="'block'">
     <div class="ds-footer__block">
       <div class="ds-footer__wrapper">
-        <DsLogo
-          v-if="options.logo"
-          :url="options.logo"
-          :storage-host="storageHost"
-          :alt="meta.description"
-        />
+        <DsLogo v-if="options.logo" :url="options.logo" :alt="meta.description" />
         <div class="ds-footer__meta">
           <p>
-            {{ meta.siteTitle }}<template v-if="meta.siteTitle">. </template>Все права защищены ©
+            {{ meta.siteTitle }}<template v-if="meta.siteTitle">. </template>
+            {{ localizer.t('footer.rights') }}
             {{ year }}
           </p>
         </div>
@@ -29,6 +25,7 @@
 <script setup>
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsLogo from 'site-ui/src/design-system/ds-logo/ds-logo.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 import { computed } from 'vue';
 
@@ -46,11 +43,6 @@ defineProps({
   footer: {
     type: Object,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 });
 

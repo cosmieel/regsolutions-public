@@ -1,7 +1,7 @@
 <template>
   <article :id="'block-' + block.id" class="b-tags">
     <ds-container :title="block.title" :backed="block.backed">
-      <ds-list v-if="block.tags.main" type="horizontal">
+      <ds-list v-if="block.tags.main.length > 0" type="horizontal">
         <ds-list-item
           v-for="tag in block.tags.main"
           :key="getKey(tag.text)"
@@ -11,15 +11,20 @@
           <span class="b-tags__main-item-text">{{ tag.text }}</span>
         </ds-list-item>
       </ds-list>
-      <div class="b-tags__tag-list-wrapper">
-        <DsTagList :tags="block.tags.other" type="wrap" />
-      </div>
+
+      <DsDevider
+        v-if="block.tags.other.length > 0 && block.tags.main.length > 0"
+        class="b-tags__devider"
+      />
+
+      <DsTagList v-if="block.tags.other.length > 0" :tags="block.tags.other" type="wrap" />
     </ds-container>
   </article>
 </template>
 
 <script setup>
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
+import DsDevider from 'site-ui/src/design-system/ds-devider/ds-devider.vue';
 import DsIcon from 'site-ui/src/design-system/ds-icon/ds-icon.vue';
 import DsListItem from 'site-ui/src/design-system/ds-list/ds-list-item.vue';
 import DsList from 'site-ui/src/design-system/ds-list/ds-list.vue';
@@ -53,14 +58,11 @@ function getKey(item) {
     flex-shrink: 0;
   }
 
-  &__tag-list-wrapper {
-    padding: 24px 0 0;
-    margin: 24px 0 0;
-    border-top: 1px solid var(--border-divider);
+  &__devider {
+    margin: 24px 0;
 
     @add-mixin desktop-all {
-      padding-top: 40px;
-      margin-top: 40px;
+      margin: 32px 0;
     }
   }
 }

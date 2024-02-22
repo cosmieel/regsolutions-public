@@ -24,7 +24,10 @@
               {{ currentPage?.title }}
             </div>
           </div>
-          <div class="pages-settings__section">
+          <div
+            class="pages-settings__section"
+            :class="{ '_with-scroll custom-scrollbar': needScroll }"
+          >
             <div v-for="(page, index) in currentPagesList" :key="index" ref="pagesListReference">
               <router-link
                 v-slot="{ href, navigate, route, isExactActive }"
@@ -71,7 +74,7 @@
                     </UiButton>
 
                     <div
-                      ref="pageControlsReference"
+                      :ref="(el) => (pageControlsReference = el)"
                       class="hs-dropdown pages-settings__page-controls relative inline-flex [--placement:right-top] [--strategy:absolute]"
                     >
                       <UiButton
@@ -157,25 +160,23 @@
         />
         <UiSvg v-else name="image" class="w-full h-full mx-auto" />
       </div>
-      <a
-        :href="`https://${currentSite.domain}`"
+      <DomainLink
         class="pages-settings__site-link"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        <span>{{ currentSite.domain }}</span>
-      </a>
+        :domain-free="currentSite.domainFree"
+        :domain="currentSite.domain"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
+import DomainLink from 'account/src/components/domain-link.vue';
 import MediaImage from 'account/src/components/media/media-image.vue';
 import config from 'account/src/config/config.js';
 import { callDeletePageModal } from 'account/src/utility/modals/delete-page-modal';
 import { UiButton, UiDropdown, UiIcon, UiSvg } from 'account-ui';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBuilderFrameStore } from './store/builder-frame-store.js';
 import { usePageConfigurationStore } from '../site-configuration/stores/page-configuration-store.js';
@@ -234,6 +235,26 @@ async function setCurrentPageData(navigate, route, pageId, event) {
     navigate(route);
   }
 }
+
+const needScroll = computed(() => currentPagesList.value.length > 7);
+
+watch(
+  pageControlsReference,
+  (dropdown) => {
+    if (!dropdown && !needScroll.value) {
+      return;
+    }
+
+    dropdown.addEventListener('open.hs.dropdown', () => {
+      const activePage = pagesListReference.value.find((item) => {
+        return item.querySelector('.pages-settings__menu-item_active');
+      });
+
+      nextTick(() => activePage.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+    });
+  },
+  { deep: true }
+);
 </script>
 
 <style lang="postcss" scoped>
@@ -272,16 +293,7 @@ async function setCurrentPageData(navigate, route, pageId, event) {
     }
 
     &-link {
-      @apply block text-blue-600 decoration-0 underline-offset-2 max-w-[120px] truncate ml-2;
-
-      &:hover {
-        @apply decoration-1 underline;
-      }
-
-      &:focus,
-      &:active {
-        @apply no-underline;
-      }
+      @apply max-w-[120px] truncate ml-2;
     }
   }
 
@@ -321,7 +333,11 @@ async function setCurrentPageData(navigate, route, pageId, event) {
     }
 
     &:last-child {
-      @apply pb-0;
+      @apply pb-0 max-h-[224px];
+    }
+
+    &._with-scroll {
+      @apply overflow-y-scroll overflow-x-hidden ml-[-8px] mr-[-14px] px-2;
     }
   }
 
@@ -408,23 +424,31 @@ async function setCurrentPageData(navigate, route, pageId, event) {
     &.open {
       @apply flex;
     }
+
+    &:not(.open) {
+      .pages-settings__controls-dropdown {
+        @apply z-[-1] pointer-events-none hidden;
+      }
+    }
   }
 
-  &__controls {
-    &-dropdown {
-      @apply w-[193px] top-0 left-full translate-y-[-4px] translate-x-2;
+  &__controls-dropdown {
+    @apply w-[193px] top-0 left-full translate-y-[-4px] translate-x-2;
+
+    ._with-scroll & {
+      @apply top-9 left-auto right-0 w-[218px];
+    }
+  }
+
+  &__controls-section {
+    @apply py-2;
+
+    &:first-child {
+      @apply pt-0;
     }
 
-    &-section {
-      @apply py-2;
-
-      &:first-child {
-        @apply pt-0;
-      }
-
-      &:last-child {
-        @apply pb-0;
-      }
+    &:last-child {
+      @apply pb-0;
     }
   }
 

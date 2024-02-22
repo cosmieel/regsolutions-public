@@ -58,7 +58,7 @@
         }"
       >
         <p v-if="itemParameters.price?.stock === 0" class="b-product-hero__unavailable">
-          Нет в наличие
+          {{ localizer.t('cardGroup.out') }}
         </p>
         <h1 class="b-product-hero__content-title">
           {{ itemParameters.title }}
@@ -155,6 +155,7 @@ import DsOrder from 'site-ui/src/design-system/ds-order/ds-order.vue';
 import DsSlide from 'site-ui/src/design-system/ds-slider/ds-slide.vue';
 import DsSlider from 'site-ui/src/design-system/ds-slider/ds-slider.vue';
 import DsTagList from 'site-ui/src/design-system/ds-tag-list/ds-tag-list.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const cartStorage = useCartStorage();
@@ -187,11 +188,6 @@ const property = defineProps({
   action: {
     type: Object,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 });
 
@@ -289,7 +285,7 @@ function getButtonColor(length, index) {
 }
 
 function getButtonText() {
-  const text = catalog.value.button?.text || 'Заказать';
+  const text = catalog.value.button?.text || localizer.t('cardGroup.order');
 
   return text;
 }
@@ -299,14 +295,14 @@ function clickToButtonProduct() {
     catalog.value.checkout.type === 'CART' &&
     itemParameters.value.price.stock > cartStorage.getItemCount(itemParameters.value.id)
   ) {
-    cartStorage.addItem(itemParameters.value.id);
+    cartStorage.addItem(itemParameters.value);
     notificationManager.add({
       type: 'info',
       autoClose: true,
       item: {
         type: 'plain',
         icon: 'checkmark',
-        title: 'Добавлено в корзину',
+        title: localizer.t('notifier.cart'),
       },
     });
   }

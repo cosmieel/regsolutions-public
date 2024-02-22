@@ -5,9 +5,18 @@
       <div class="ds-cart-list-item__description">
         <strong class="ds-cart-list-item__title">{{ title }}</strong>
         <p v-if="false">Доп инфо из селекта</p>
-
+        <DsBadge
+          v-if="statuses.includes(STATUSES.STOCK_CHANGED)"
+          color="orange-soft"
+          :text="localizer.t('cart.stockChanged')"
+        />
+        <DsBadge
+          v-if="statuses.includes(STATUSES.NOT_AVAILABLE)"
+          color="red-soft"
+          :text="localizer.t('cart.outOfStock')"
+        />
         <DsCounter
-          v-if="price.stock && price.stock !== 1"
+          v-if="price.stock"
           :count="count"
           class="ds-cart-list-item__counter"
           :max-count="price.stock"
@@ -15,25 +24,34 @@
         />
       </div>
       <div class="ds-cart-list-item__wrapper">
-        <div class="ds-cart-list-item__price-wrapper">
+        <div v-if="price.stock" class="ds-cart-list-item__price-wrapper">
+          <DsBadge
+            v-if="statuses.includes(STATUSES.PRICE_CHANGED)"
+            color="orange-soft"
+            :text="localizer.t('cart.priceChanged')"
+            class="ds-cart-list-item__price-badge"
+          />
           <strong class="ds-cart-list-item__price">
-            {{ price.currentPrice }} {{ price.unit }}
+            {{ price.currentPrice }} {{ symbol }}{{ unit }}
           </strong>
           <p v-if="price.oldPrice" class="ds-cart-list-item__old-price">
-            {{ price.oldPrice }} {{ price.unit }}
+            {{ price.oldPrice }} {{ symbol }}{{ unit }}
           </p>
         </div>
-        <DsButton theme="fab" size="s" icon="trash-delete" @click="deleteItem" />
+        <DsButton theme="fab" size="xs" icon="trash-delete" @click="deleteItem" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import DsBadge from 'site-ui/src/design-system/ds-badge/ds-badge.vue';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import { useCartStorage } from 'site-ui/src/design-system/ds-cart/cart-storage.js';
 import DsCounter from 'site-ui/src/design-system/ds-counter/ds-counter.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
+import { STATUSES } from './constants/statuses.js';
 
 const cartStorage = useCartStorage();
 
@@ -53,6 +71,16 @@ const property = defineProps({
     default: () => {},
   },
 
+  symbol: {
+    type: String,
+    default: '',
+  },
+
+  unit: {
+    type: String,
+    default: '',
+  },
+
   count: {
     type: Number,
     default: 1,
@@ -61,6 +89,11 @@ const property = defineProps({
   image: {
     type: String,
     default: '',
+  },
+
+  statuses: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -98,13 +131,24 @@ function deleteItem() {
 
   &__content {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     justify-content: space-between;
     flex-grow: 1;
+
+    @add-mixin desktop-all {
+      gap: 16px;
+    }
+  }
+
+  &__description {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   &__title {
     display: block;
+    margin-bottom: 4px;
     color: var(--font-primary);
     font-weight: 500;
     @add-mixin b4;
@@ -118,7 +162,7 @@ function deleteItem() {
     margin-top: 8px;
 
     @add-mixin desktop-all {
-      margin-top: 16px;
+      margin-top: 12px;
     }
   }
 
@@ -141,6 +185,10 @@ function deleteItem() {
     flex-direction: column;
     gap: 4px;
     text-align: right;
+  }
+
+  &__price-badge {
+    margin-bottom: 4px;
   }
 
   &__price {

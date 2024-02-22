@@ -8,7 +8,7 @@
               :path="image.url"
               :alt="'image-' + (index + 1)"
               loading="lazy"
-              :size="config.resize.gallery.content.slide"
+              :size="resizeConfig.gallery.content.slide"
               class="b-gallery-content__image b-gallery-content__image_type_slide"
               @click="changeImage(index)"
             />
@@ -27,7 +27,7 @@
               :path="image.url"
               :alt="'image-' + (index + 1)"
               loading="lazy"
-              :size="config.resize.gallery.content.item"
+              :size="resizeConfig.gallery.content.item"
               class="b-gallery-content__image"
             />
             <template v-if="index === 4 && images.length > 5">
@@ -44,7 +44,7 @@
 
 <script setup>
 import { useBreakPoint } from 'site-ui/src/break-point/break-point';
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 import DsModalGallery from 'site-ui/src/design-system/ds-modal-gallery/ds-modal-gallery.vue';
@@ -58,11 +58,6 @@ const property = defineProps({
   block: {
     type: Object,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 });
 

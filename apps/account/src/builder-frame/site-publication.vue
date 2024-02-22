@@ -20,14 +20,14 @@
       <div class="site-publication__publish">
         <UiButton
           size="small"
-          :disabled="(!isAdmin && !siteSubscription?.active) || isPublishPending"
+          :disabled="(!isAdmin && !hasSubscription) || isPublishPending"
           :pending="isPublishPending"
           @click="publishSite"
         >
           Опубликовать
         </UiButton>
       </div>
-      <div v-if="!isAdmin && !siteSubscription?.active" class="site-publication__notify">
+      <div v-if="!isAdmin && !hasSubscription" class="site-publication__notify">
         <div class="site-publication__notify-wrapper">
           <div class="site-publication__notify-icon">
             <UiIcon name="warning-filled" :size="20" />
@@ -84,6 +84,10 @@ const publishSite = async () => {
 };
 
 const countOfChanges = computed(() => siteConfigurationStore?.currentSite?.changes);
+
+const hasSubscription = computed(() => {
+  return Object.keys(siteSubscription.value).length > 0;
+});
 </script>
 
 <style lang="postcss" scoped>

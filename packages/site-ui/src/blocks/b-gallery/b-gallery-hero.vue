@@ -32,11 +32,6 @@ const property = defineProps({
     type: Object,
     required: true,
   },
-
-  storageHost: {
-    type: String,
-    default: '',
-  },
 });
 
 const modal = ref(false);

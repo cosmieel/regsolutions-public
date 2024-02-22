@@ -1,17 +1,19 @@
 import { useIsFetching, useQueryClient } from '@tanstack/vue-query';
-import { notifyer } from 'account/src/instances/notifyer.js';
+import { notifyer } from 'account/src/instances/notifyer';
 import { useDeletedItems } from 'account/src/utility/composition/use-deleted-items.js';
+import { BATCH_SIZE } from 'account/src/utility/constants/batch.js';
+import { sliceIntoChunks } from 'account/src/utility/helpers/slice-into-chunks.js';
 import { requiredFieldMessage } from 'account/src/utility/validation-rules';
-import { UiButton } from 'account-ui';
 import { CURRENCY_CODES } from 'currency';
 import isEqual from 'lodash.isequal';
 import { defineStore, storeToRefs } from 'pinia';
-import { computed, markRaw, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { moveArrayItem } from './helpers.js';
 import { useSiteConfigurationStore } from './site-configuration-store.js';
 import { useUploadMutation } from '../../components/composables/upload-mutation.js';
 import { useUserAccountStore } from '../../user-account/stores/user-account.js';
+import { useBatchUpdateCatalogsMutation } from '../composables/batch-update-catalogs-mutation.js';
 import { getCatalogById, useCatalogQuery } from '../composables/catalog-query.js';
 import { getAllCatalogs, useCatalogsQuery } from '../composables/catalogs-query.js';
 import { useCreateCatalogMutation } from '../composables/create-catalog-mutation.js';
@@ -21,22 +23,10 @@ import {
   useImportBnovoCatalogMutation,
 } from '../composables/import-catalog-mutation.js';
 import { useUpdateCatalogMutation } from '../composables/update-catalog-mutation.js';
-
-const callSuccessCatalogDeletionNotification = (name, onTimerCompleted, onCancel) => {
-  notifyer.info({
-    message: name ? `Каталог “${name}” был удалён` : 'Каталоги были удалены',
-    timeOut: 10_000,
-    onTimerCompleted,
-    action: {
-      slotValue: 'Отменить',
-      props: {
-        'is-ghost-white': true,
-      },
-      click: onCancel,
-      component: markRaw(UiButton),
-    },
-  });
-};
+import {
+  callSuccessCatalogDeletionNotification,
+  CATALOG_DELETION_NOTIFICATION_ID,
+} from '../config-catalogs/catalogs/notifications/deleted-items.js';
 
 export const useCatalogConfigurationStore = defineStore('catalogConfigurationStore', () => {
   const queryClient = useQueryClient();
@@ -52,6 +42,7 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
   const createCatalogMutation = useCreateCatalogMutation();
   const deleteCatalogMutation = useDeleteCatalogMutation();
   const updateCatalogMutation = useUpdateCatalogMutation();
+  const batchUpdateCatalogsMutation = useBatchUpdateCatalogsMutation();
   const importCsvCatalogMutation = useImportCsvCatalogMutation();
   const importBnovoCatalogMutation = useImportBnovoCatalogMutation();
   const uploadMutation = useUploadMutation();
@@ -70,7 +61,7 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
       required: true,
     },
     {
-      type: 'tel',
+      type: 'phone',
       label: 'Телефон',
       required: false,
     },
@@ -99,7 +90,7 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
           required: true,
         },
         {
-          type: 'tel',
+          type: 'phone',
           label: 'Телефон',
           required: false,
         },
@@ -159,9 +150,15 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
   const { deletedItems, removeDeletedItem, addDeletedItem, addSeveral, removeSeveral } =
     useDeletedItems('DELETED_CATALOG_ITEMS');
 
-  const currentCatalogsListFiltered = computed(() =>
-    currentCatalogsList.value.filter((item) => !deletedItems.value.includes(item.id))
-  );
+  const currentCatalogsListFiltered = computed(() => {
+    if (deletedItems.value.length === 0) {
+      return currentCatalogsList.value;
+    }
+
+    return currentCatalogsList.value.filter((item) => {
+      return !deletedItems.value.includes(item.id);
+    });
+  });
 
   watch(isFetching, (value) => {
     if (route.name === 'siteConfigurationCatalogSettings') {
@@ -213,14 +210,14 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
     currentCatalog.value.checkout.terms = null;
   }
 
-  async function fetchCatalogs(siteId) {
+  async function fetchCatalogs(siteId, queryParameters = {}) {
     try {
       const catalogsList = await queryClient.fetchQuery({
         queryKey: ['catalogs'],
-        queryFn: async () => await getAllCatalogs(siteId),
+        queryFn: async () => await getAllCatalogs(siteId, queryParameters),
       });
 
-      currentCatalogsList.value = catalogsList.sort((a, b) => a.id - b.id);
+      currentCatalogsList.value = catalogsList;
     } catch (error) {
       console.log(error);
     }
@@ -407,6 +404,47 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
     return newCatalogData;
   }
 
+  async function batchUpdateCatalogRequest() {
+    const catalogs = currentCatalogsListFiltered.value.map((catalog, catalogIndex) => ({
+      id: catalog.id,
+      orderIndex: catalogIndex + 1,
+    }));
+
+    for (const chunk of sliceIntoChunks(catalogs, BATCH_SIZE)) {
+      await batchUpdateCatalogsMutation.mutateAsync({ catalogs: chunk });
+    }
+  }
+
+  async function forceDeletion() {
+    if (deletedItems.value.length > 0) {
+      notifyer.changeList(
+        notifyer.list.value.filter((item) => item?.meta?.id !== CATALOG_DELETION_NOTIFICATION_ID)
+      );
+
+      await deleteCatalogByIds(deletedItems.value);
+    }
+  }
+
+  async function deleteCatalogByIds(ids) {
+    try {
+      const response = await Promise.allSettled(
+        ids.map((id) => deleteCatalogMutation.mutateAsync(id))
+      );
+
+      const result = new Set(
+        response.filter((item) => item.status === 'fulfilled').map((item) => item.value.id)
+      );
+
+      if (result.size > 0) {
+        currentCatalogsList.value = currentCatalogsList.value.filter(
+          (item) => !result.has(item.id)
+        );
+      }
+    } finally {
+      removeSeveral(ids);
+    }
+  }
+
   async function deleteCatalog(identifiers) {
     const ids = Array.isArray(identifiers)
       ? identifiers.length > 1
@@ -422,25 +460,7 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
 
         callSuccessCatalogDeletionNotification(
           null,
-          async () => {
-            try {
-              const response = await Promise.allSettled(
-                ids.map((id) => deleteCatalogMutation.mutateAsync(id))
-              );
-
-              const result = new Set(
-                response.filter((item) => item.status === 'fulfilled').map((item) => item.value.id)
-              );
-
-              if (result.size > 0) {
-                currentCatalogsList.value = currentCatalogsList.value.filter(
-                  (item) => !result.has(item.id)
-                );
-              }
-            } finally {
-              removeSeveral(ids);
-            }
-          },
+          async () => deleteCatalogByIds(ids),
           () => {
             removeSeveral(ids);
           }
@@ -456,7 +476,7 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
 
         callSuccessCatalogDeletionNotification(
           foundItem.name,
-          () => deleteCatalogRequest(foundItem.id),
+          () => deleteCatalogByIds([foundItem.id]),
           () => {
             removeDeletedItem(foundItem.id);
           }
@@ -465,24 +485,12 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
     }
   }
 
-  async function deleteCatalogRequest(id) {
-    try {
-      await deleteCatalogMutation.mutateAsync(id);
-
-      if (deleteCatalogMutation.isSuccess.value) {
-        currentCatalogsList.value = currentCatalogsList.value.filter((catalog) => {
-          return catalog.id !== id;
-        });
-      }
-    } finally {
-      removeDeletedItem(id);
-    }
-  }
-
   async function importCsvCatalogRequest(csvCatalog) {
+    catalogCsvErrorMessage.value = '';
+    isCatalogCsvLoading.value = true;
+
     try {
-      catalogCsvErrorMessage.value = '';
-      isCatalogCsvLoading.value = true;
+      await forceDeletion();
 
       const data = await importCsvCatalogMutation.mutateAsync({
         siteId: route.params.siteId,
@@ -491,11 +499,12 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
 
       if (importCsvCatalogMutation.isSuccess.value) {
         currentCatalogsList.value = data.sort((a, b) => a.id - b.id);
-
-        isCatalogCsvLoading.value = false;
       }
     } catch (error) {
       catalogCsvErrorMessage.value = error.message;
+
+      throw error;
+    } finally {
       isCatalogCsvLoading.value = false;
     }
   }
@@ -547,6 +556,18 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
     () => currentCatalog.value.name,
     () => {
       catalogNameErrorMessage.value = '';
+    },
+    { deep: true }
+  );
+
+  watch(
+    () => currentCatalog.value.orderIndex,
+    (value) => {
+      if (value?.length < 1) {
+        currentCatalog.value.orderIndex = 1;
+      } else {
+        currentCatalog.value.orderIndex = Number.isNaN(Number(value)) ? 1 : Number(value);
+      }
     },
     { deep: true }
   );
@@ -645,7 +666,6 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
     createCatalogRequest,
     updateCatalogRequest,
     deleteCatalog,
-    deleteCatalogRequest,
     importCsvCatalogRequest,
     importBnovoCatalogRequest,
     uploadRequest,
@@ -674,5 +694,8 @@ export const useCatalogConfigurationStore = defineStore('catalogConfigurationSto
     handleClearCurrentCatalogsList,
     currentCatalogsListFiltered,
     deletedItems,
+    forceDeletion,
+    deleteCatalogByIds,
+    batchUpdateCatalogRequest,
   };
 });

@@ -3,7 +3,7 @@
     :path="currentSiteData?.logo"
     :name="formValues[TITLE_KEY]"
     :slug="currentPageData?.slug"
-    :domain="currentSiteData.domain"
+    :domain="currentSiteData.domain || currentSiteData.domainFree"
     :description="formValues[DESCRIPTION_KEY]"
   />
 </template>

@@ -126,6 +126,8 @@ const onCatalogCheck = () => {
 
 <style lang="postcss" scoped>
 .catalog-table-item {
+  @apply flex;
+
   &__td {
     @apply whitespace-nowrap text-sm leading-6 text-gray-700 p-0;
 
@@ -138,7 +140,7 @@ const onCatalogCheck = () => {
     }
 
     &._name {
-      @apply px-4 py-4 w-[45%] max-w-[256px];
+      @apply px-4 py-4 max-w-[260px] flex-grow;
     }
 
     &._count {

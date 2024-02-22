@@ -41,14 +41,14 @@ import { useUserSitesStore } from '../stores/user-sites-store.js';
 
 const router = useRouter();
 const userSitesStore = useUserSitesStore();
-const { sitesList, isSuccess, isLoading } = storeToRefs(userSitesStore);
+const { total, isSuccess, isLoading } = storeToRefs(userSitesStore);
 
 const wizardStore = useWizardStore();
 
 const isCreateSitByYourselfLoading = ref(false);
 
 const redirectIfSitesListIsNotEmpty = (isSuccess) => {
-  if (isSuccess && sitesList.value.length > 0) {
+  if (isSuccess && total.value > 0) {
     router.push({ name: 'accountMain' });
   }
 };

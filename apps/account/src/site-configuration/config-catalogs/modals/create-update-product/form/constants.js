@@ -13,6 +13,7 @@ export const DESCRIPTION = 'text';
 export const SHORT_DESCRIPTION = 'description';
 export const IMAGES_KEY = 'images';
 export const CATEGORY_KEY = 'category';
+export const ORDER_INDEX_KEY = 'orderIndex';
 
 export const FORM_VALUES_PROVIDE_KEY = 'form_values_provide_key';
 export const PRODUCT_PROVIDE_KEY = 'product_provide_key';

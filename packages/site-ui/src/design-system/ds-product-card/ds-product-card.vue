@@ -39,7 +39,7 @@
             <template v-if="currency.unit">{{ currency.unit }}</template>
           </span>
         </div>
-        <span v-else class="ds-product-card__notice">Нет в наличии</span>
+        <span v-else class="ds-product-card__notice">{{ localizer.t('cardGroup.out') }}</span>
       </template>
       <strong class="ds-product-card__title">{{ title }}</strong>
       <p v-if="description" class="ds-product-card__description">{{ description }}</p>
@@ -76,6 +76,7 @@ import DsBadge from 'site-ui/src/design-system/ds-badge/ds-badge.vue';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 import DsTagList from 'site-ui/src/design-system/ds-tag-list/ds-tag-list.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 import { computed } from 'vue';
 

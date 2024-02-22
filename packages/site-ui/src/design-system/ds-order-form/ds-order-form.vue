@@ -11,14 +11,14 @@
     <ds-form
       :fields="checkout.fields"
       :button="formButton"
-      title="Оформление заказа"
+      :title="localizer.t('order.registration')"
       :privacy-text="privacyText"
       class="b-form__form"
       @submit="submitForm"
     >
       <div class="ds-order-form__footer">
         <div v-if="price" class="ds-order-form__footer-wrapper">
-          <p class="ds-order-form__price-text">Итого</p>
+          <p class="ds-order-form__price-text">{{ localizer.t('order.total') }}</p>
           <div class="ds-order-form__price-wrapper">
             <span v-if="oldPrice !== price" class="ds-order-form__old-price">{{ oldPrice }} ₽</span>
             <strong class="ds-order-form__price">{{ price }} ₽</strong>
@@ -32,6 +32,7 @@
 <script setup>
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsForm from 'site-ui/src/design-system/ds-form/ds-form.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { computed } from 'vue';
 
 const emit = defineEmits(['showPrevious', 'sendForm']);
@@ -67,7 +68,7 @@ const formButton = computed(() => {
   return property.checkout.button?.text
     ? { text: property.checkout.button.text }
     : {
-        text: 'Подтвердить заказ',
+        text: localizer.t('order.confirmation'),
       };
 });
 

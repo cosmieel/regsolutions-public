@@ -2,7 +2,11 @@
   <div>
     <div class="relative">
       <label>
-        <span v-if="label" class="ui-input__label">{{ label }}</span>
+        <div class="ui-input__head">
+          <span v-if="label" class="ui-input__label">{{ label }}</span>
+          <span v-if="counter" class="ui-input__counter">{{ currentCount }}/{{ counter }}</span>
+          <slot name="afterLabel" />
+        </div>
         <div class="ui-input__input-wrapper">
           <span v-if="isSuccess" class="ui-input__success">
             <UiIcon name="checkmark" :size="18" />
@@ -21,7 +25,7 @@
               'ui-input_trailing': trailing,
               'ui-input_disabled': isDisabled,
             }"
-            :maxlength="maxLength"
+            :maxlength="maxLength || counter"
             @input="updateInput"
             @focus="onFocus"
             @blur="onBlur"
@@ -41,8 +45,9 @@
 
 <script setup>
 import UiIcon from './ui-icon.vue';
+import { useFieldCounter } from '../utility/composition/use-field-counter.js';
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: [String, Number],
     default: '',
@@ -89,6 +94,11 @@ defineProps({
     default: '',
   },
 
+  counter: {
+    type: String,
+    default: '',
+  },
+
   isDisabled: {
     type: Boolean,
     default: false,
@@ -108,6 +118,8 @@ function onFocus(event) {
 function onBlur(event) {
   emit('input-blur', event);
 }
+
+const { currentCount } = useFieldCounter(props);
 </script>
 
 <style lang="postcss" scoped>
@@ -155,8 +167,16 @@ function onBlur(event) {
     @apply pr-[112px];
   }
 
+  &__head {
+    @apply flex gap-2;
+  }
+
   &__label {
     @apply block text-xs text-[13px] mb-2 text-left text-gray-500;
+  }
+
+  &__counter {
+    @apply text-sm leading-4 text-gray-400 text-right flex-grow;
   }
 
   &__input-wrapper {

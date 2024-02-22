@@ -1,5 +1,5 @@
 .custom-scrollbar {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: theme('colors.gray.500');
 
   &::-webkit-scrollbar {

@@ -183,11 +183,19 @@ function handleClick(event) {
 
         &_error {
           color: var(--font-danger);
-          background-color: var(--bg-button-secondary-default);
+          background-color: var(--bg-button-danger-default);
+
+          &:hover {
+            background-color: var(--bg-button-danger-hover);
+          }
+
+          &:active {
+            background-color: var(--bg-button-danger-active);
+          }
 
           &:disabled {
-            color: var(--font-disable);
-            background-color: var(--bg-button-disable);
+            color: var(--font-danger-disable);
+            background-color: var(--bg-button-danger-disable);
           }
         }
       }

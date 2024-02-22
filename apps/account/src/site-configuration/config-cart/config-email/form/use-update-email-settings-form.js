@@ -33,6 +33,17 @@ export const useUpdateEmailSettingsForm = () => {
         });
 
         resetForm({ values });
+      } catch (error) {
+        if (error.code === 'ValidationError') {
+          notifyer.error({
+            title: 'Такой почты не существует',
+            message: 'Проверьте написание и попробуйте еще раз',
+          });
+        } else {
+          notifyer.error({
+            message: error.message,
+          });
+        }
       } finally {
         isSubmitLoading.value = false;
       }

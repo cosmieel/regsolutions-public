@@ -36,8 +36,9 @@
 <script setup>
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
-import { useImageSizer } from 'site-ui/src/design-system/ds-image/use-image-sizer.js';
-import { computed } from 'vue';
+import { OPTIONS_KEY } from 'site-ui/src/services/constants/constants.js';
+import { getConstructedUrl } from 'site-ui/src/services/get-constructed-url/get-constructed-url.js';
+import { computed, inject } from 'vue';
 
 const property = defineProps({
   theme: {
@@ -80,7 +81,8 @@ const property = defineProps({
   },
 });
 
-const mediaUrlFull = useImageSizer(property.image, property.resizerSize);
+const { hosts } = inject(OPTIONS_KEY);
+const constructedUrlFull = getConstructedUrl(property.image, hosts, property.resizerSize);
 
 const emit = defineEmits(['click']);
 
@@ -90,7 +92,7 @@ const infoCardClass = computed(() => {
 
 const infoCardStyle = computed(() => {
   return property.theme === 'full'
-    ? `background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), center/cover url('${mediaUrlFull.value}');`
+    ? `background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), center/cover url('${constructedUrlFull}');`
     : '';
 });
 

@@ -3,12 +3,7 @@
     <div class="ds-header__wrapper">
       <div class="ds-header__content">
         <div class="ds-header__group ds-header__group_type_left">
-          <DsLogo
-            v-if="options.logo"
-            :url="options.logo"
-            :storage-host="storageHost"
-            :alt="meta.description"
-          />
+          <DsLogo v-if="options.logo" :url="options.logo" :alt="meta.description" />
           <DsMenu
             v-if="!breakPoint.isMobileAll"
             :items="headerParameters.menuItems"
@@ -22,7 +17,7 @@
             v-if="options.cart && siteMode.isView"
             :cart="options.cart"
             :catalog-items="catalogItems"
-            :storage-host="storageHost"
+            :catalogs="catalogs"
             :action="options.action"
             :checkout="options.checkout"
           />
@@ -106,9 +101,9 @@ const property = defineProps({
     default: () => [],
   },
 
-  storageHost: {
-    type: String,
-    default: '',
+  catalogs: {
+    type: Array,
+    default: () => [],
   },
 });
 

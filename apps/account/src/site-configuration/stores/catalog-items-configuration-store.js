@@ -1,6 +1,8 @@
 import { useQueryClient } from '@tanstack/vue-query';
 import { notifyer } from 'account/src/instances/notifyer.js';
 import { useDeletedItems } from 'account/src/utility/composition/use-deleted-items';
+import { BATCH_SIZE } from 'account/src/utility/constants/batch.js';
+import { sliceIntoChunks } from 'account/src/utility/helpers/slice-into-chunks.js';
 import { UiButton } from 'account-ui';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, markRaw, onMounted, ref, watch } from 'vue';
@@ -9,6 +11,7 @@ import { useCatalogConfigurationStore } from './catalog-configuration-store.js';
 import { useSiteConfigurationStore } from './site-configuration-store.js';
 import { useUploadMutation } from '../../components/composables/upload-mutation.js';
 import { useUserAccountStore } from '../../user-account/stores/user-account.js';
+import { useBatchUpdateCatalogItemsMutation } from '../composables/batch-update-catalog-items-mutation.js';
 import { useCatalogItemQuery } from '../composables/catalog-item-query.js';
 import { getAllCatalogItems, useCatalogItemsQuery } from '../composables/catalog-items-query.js';
 import { useCreateCatalogItemMutation } from '../composables/create-catalog-item-mutation.js';
@@ -51,6 +54,7 @@ export const useCatalogItemsConfigurationStore = defineStore(
     const deleteCatalogItemMutation = useDeleteCatalogItemMutation();
     const duplicateCatalogItemMutation = useDuplicateCatalogItemMutation();
     const updateCatalogItemMutation = useUpdateCatalogItemMutation();
+    const batchUpdateCatalogItemsMutation = useBatchUpdateCatalogItemsMutation();
     const uploadMutation = useUploadMutation();
 
     const currentCatalogItemsList = ref([]);
@@ -59,16 +63,16 @@ export const useCatalogItemsConfigurationStore = defineStore(
 
     const isCatalogItemCreated = ref(false);
 
-    const currentCatalogItemsSortedList = computed(() =>
-      currentCatalogItemsList.value.sort((a, b) => a.id - b.id)
-    );
-
     const { deletedItems, addDeletedItem, removeDeletedItem, addSeveral, removeSeveral } =
       useDeletedItems('DELETED_CATALOG_PRODUCT_ITEMS');
 
-    const currentCatalogItemsFilteredList = computed(() =>
-      currentCatalogItemsSortedList.value.filter((item) => !deletedItems.value.includes(item.id))
-    );
+    const currentCatalogItemsFilteredList = computed(() => {
+      if (deletedItems.value.length === 0) {
+        return currentCatalogItemsList.value;
+      }
+
+      return currentCatalogItemsList.value.filter((item) => !deletedItems.value.includes(item.id));
+    });
 
     const {
       isLoading: isCatalogItemsLoading,
@@ -86,11 +90,11 @@ export const useCatalogItemsConfigurationStore = defineStore(
       error: catalogItemError,
     } = useCatalogItemQuery(siteId.value, catalogId.value, catalogItemId.value);
 
-    async function fetchCatalogItems(siteId, catalogId) {
+    async function fetchCatalogItems(siteId, catalogId, queryParameters = {}) {
       try {
         const catalogItemsList = await queryClient.fetchQuery({
           queryKey: ['catalogItems'],
-          queryFn: async () => await getAllCatalogItems({ siteId, catalogId }),
+          queryFn: async () => await getAllCatalogItems({ siteId, catalogId }, queryParameters),
         });
 
         currentCatalogItemsList.value = catalogItemsList || [];
@@ -163,6 +167,23 @@ export const useCatalogItemsConfigurationStore = defineStore(
             (item) => item?.id !== data?.id
           );
         }
+      }
+
+      currentCatalogItemsList.value = currentCatalogItemsList.value.sort(
+        (a, b) => a.orderIndex - b.orderIndex
+      );
+    }
+
+    async function batchUpdateCatalogItemsRequest() {
+      const catalogItems = currentCatalogItemsFilteredList.value.map(
+        (catalogItem, catalogItemIndex) => ({
+          id: catalogItem.id,
+          orderIndex: catalogItemIndex + 1,
+        })
+      );
+
+      for (const chunk of sliceIntoChunks(catalogItems, BATCH_SIZE)) {
+        await batchUpdateCatalogItemsMutation.mutateAsync({ items: chunk });
       }
     }
 
@@ -301,6 +322,7 @@ export const useCatalogItemsConfigurationStore = defineStore(
       siteId,
       deleteCatalogItem,
       deletedItems,
+      batchUpdateCatalogItemsRequest,
     };
   }
 );

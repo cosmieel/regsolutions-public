@@ -2,15 +2,13 @@
   <div class="paid-domain">
     <div class="paid-domain__main">
       <div class="paid-domain__input-wrapper">
-        <UiInput
+        <UiDomainInput
           v-model.trim="domainModel"
           class="paid-domain__input"
           :class="{ 'paid-domain__input_valid': isDomainValid }"
-          :type="'text'"
-          :placeholder="'Домен'"
+          max-length="100"
           :error-message="domainErrorMessage"
           :is-success="isDomainValid"
-          :max-length="'100'"
           @keyup.enter="lookupDomain"
         />
         <div v-if="isDomainValid" class="paid-domain__cancel" @click="changeDomain">
@@ -56,7 +54,7 @@
 </template>
 
 <script setup>
-import { UiButton, UiIcon, UiInput } from 'account-ui';
+import { UiButton, UiIcon, UiDomainInput } from 'account-ui';
 import { computed } from 'vue';
 
 const props = defineProps({

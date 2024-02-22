@@ -1,15 +1,11 @@
 <template>
-  <UiTable class="catalog-table">
+  <UiTable class="catalog-table" :list="catalogsList" @change-order="onChangeOrder">
     <template #ui-table-head>
-      <tr>
+      <tr class="catalog-table__tr">
         <th scope="col" class="catalog-table__th _checkbox">
           <UiCheckbox :model-value="allSelected" @change="handleSelectAll()" />
         </th>
         <th scope="col" class="catalog-table__th _filter">Все</th>
-        <th scope="col" class="catalog-table__th"></th>
-        <th scope="col" class="catalog-table__th"></th>
-        <th scope="col" class="catalog-table__th"></th>
-        <th scope="col" class="catalog-table__th"></th>
       </tr>
     </template>
     <template #ui-table-body>
@@ -44,7 +40,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['delete-catalog', 'update-active-state']);
+const emit = defineEmits(['delete-catalog', 'update-active-state', 'update-order']);
 
 const {
   selectedItems,
@@ -69,17 +65,23 @@ const onDeleteCatalog = (catalogId) => {
 const onUpdateActiveState = (activeValue, catalogId) => {
   emit('update-active-state', activeValue, catalogId);
 };
+
+const onChangeOrder = () => emit('update-order');
 </script>
 
 <style lang="postcss" scoped>
 .catalog-table {
+  &__tr {
+    @apply flex;
+  }
+
   &__th {
     &._checkbox {
-      @apply py-5 pl-4;
+      @apply py-5 pl-4 pr-0;
     }
 
     &._filter {
-      @apply px-4 py-4 text-left text-sm text-gray-500 leading-6;
+      @apply px-4 py-4 text-left text-sm text-gray-500 leading-6 flex-grow;
     }
   }
 }

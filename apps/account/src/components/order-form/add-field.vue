@@ -22,7 +22,7 @@ const possibleFields = [
     label: 'E-mail',
   },
   {
-    type: 'tel',
+    type: 'phone',
     label: 'Телефон',
   },
   {

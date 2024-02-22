@@ -21,7 +21,6 @@
         :is="getBlockComponent(block.type)"
         :block="block"
         :color="getColor(block.type)"
-        :storage-host="getHost(block.type)"
         :action="getAction(block.type)"
         :catalogs="getCatalogs(block.type)"
         :catalog-items="getCatalogItems(block.type)"
@@ -69,11 +68,6 @@ const property = defineProps({
   action: {
     type: Object,
     default: () => {},
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 
   catalogs: {
@@ -151,21 +145,6 @@ function getComponentType(type, index) {
 // Дополнительные пропсы
 function getColor(type) {
   return type === 'BBnovo' ? property.color : null;
-}
-
-function getHost(type) {
-  return [
-    'BBanner',
-    'BCatalog',
-    'BCatalogs',
-    'BCover',
-    'BForm',
-    'BGallery',
-    'BInfoGroup',
-    'BProductHero',
-  ].includes(type)
-    ? property.storageHost
-    : null;
 }
 
 function getCatalogs(type) {

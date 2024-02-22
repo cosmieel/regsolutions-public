@@ -9,13 +9,15 @@
     </UiBadge>
 
     <UiButton
+      v-if="withAction"
       class="status-button-group__button"
       :class="{ 'status-button-group__button_pending': isPending }"
       :pending="isPending"
-      :disabled="isPending"
+      :disabled="isPending || isDisabled"
       is-outline
       size="small"
       is-button-icon
+      @click="$emit('action')"
     >
       <UiIcon name="retry" :size="16" />
     </UiButton>
@@ -46,6 +48,18 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+
+  isDisabled: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+
+  withAction: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 });
 
 const statusText = computed(() => {
@@ -55,6 +69,8 @@ const statusText = computed(() => {
 
   return props.unsuccessfulStatusText;
 });
+
+defineEmits(['action']);
 </script>
 
 <style lang="postcss" scoped>

@@ -32,14 +32,11 @@
         <div class="sites-item__name">
           {{ siteData.name }}
         </div>
-        <a
-          :href="`https://${siteData.domain}`"
-          target="_blank"
-          rel="noreferrer noopener"
+        <DomainLink
           class="sites-item__domain"
-        >
-          {{ siteData.domain }}
-        </a>
+          :domain="siteData.domain"
+          :domain-free="siteData.domainFree"
+        />
       </div>
 
       <div
@@ -110,6 +107,7 @@
 </template>
 
 <script setup>
+import DomainLink from 'account/src/components/domain-link.vue';
 import MediaImage from 'account/src/components/media/media-image.vue';
 import config from 'account/src/config/config.js';
 import { notifyer } from 'account/src/instances/notifyer';
@@ -146,8 +144,12 @@ const deleteSite = async () => {
 
 const publishSite = async (siteId) => {
   isPublishPending.value = true;
-  await userSitesStore.publishSiteRequest(siteId);
-  isPublishPending.value = false;
+
+  try {
+    await userSitesStore.publishSiteRequest(siteId);
+  } finally {
+    isPublishPending.value = false;
+  }
 };
 
 const handleUnPublishSite = (siteId) =>
@@ -156,7 +158,7 @@ const handleUnPublishSite = (siteId) =>
 const copySiteLink = () => {
   let toastHideTimeout;
 
-  navigator.clipboard.writeText(props.siteData.domain).then(
+  navigator.clipboard.writeText(props.siteData.domain || props.siteData.domainFree).then(
     function () {
       notifyer.info({ message: 'Ссылка скопирована' });
     },
@@ -215,16 +217,7 @@ const siteId = computed(() => props.siteData.id);
   }
 
   &__domain {
-    @apply block text-sm text-blue-600 leading-6 decoration-0 underline-offset-2 break-all;
-
-    &:hover {
-      @apply decoration-1 underline;
-    }
-
-    &:focus,
-    &:active {
-      @apply no-underline;
-    }
+    @apply text-sm text-blue-600 leading-6;
   }
 
   &__options {

@@ -8,7 +8,7 @@ import { useAuthFormStore } from '../../auth/stores/auth-form.js';
 import { useUploadMutation } from '../../components/composables/upload-mutation.js';
 import { useUserAccountStore } from '../../user-account/stores/user-account.js';
 import { useUserSitesStore } from '../../user-sites/stores/user-sites-store.js';
-import { useLookupDomainMutation } from '../composables/lookup-domain-mutation.js';
+import { useLookupDomainMutationNew } from '../composables/lookup-domain-mutation.js';
 import { getAllPages, usePagesQuery } from '../composables/pages-query.js';
 import { getSiteById, useSiteQuery } from '../composables/site-query.js';
 
@@ -27,7 +27,7 @@ const initCheckoutField = (targetObject) => {
           required: true,
         },
         {
-          type: 'tel',
+          type: 'phone',
           label: 'Телефон',
           required: false,
         },
@@ -48,7 +48,7 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
   const route = useRoute();
   const userSitesStore = useUserSitesStore();
   const uploadMutation = useUploadMutation();
-  const lookupDomainMutation = useLookupDomainMutation();
+  const lookupDomainMutation = useLookupDomainMutationNew();
 
   const userAccountStore = useUserAccountStore();
   const { currentImagesStorage } = storeToRefs(userAccountStore);
@@ -64,7 +64,7 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
   const updateSiteDataErrorMessage = ref('');
   const updateOrderEmailErrorMessage = ref('');
   const needShowSavingDataNotification = ref(false);
-  const isDomainConfigurationError = ref('');
+  const domainConfigurationError = ref(null);
 
   const currentCheckout = computed(() => {
     return currentSite.value?.checkout;
@@ -115,7 +115,7 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
 
       initCheckoutField(currentSite.value);
 
-      await checkDomainConfiguration(currentSite.value.domain);
+      await checkDomainConfiguration(currentSite.value.domain, currentSite.value.domainFree);
     } catch (error) {
       if (error.message === 'error_no_access') {
         await logout();
@@ -274,25 +274,17 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
     //   delete siteDataToUpdate.value.footer;
     // }
 
-    try {
-      await userSitesStore.updateSiteRequest({
-        id: currentSite.value.id,
-        ...(data || siteDataToUpdate.value),
-      });
+    await userSitesStore.updateSiteRequest({
+      id: currentSite.value.id,
+      ...(data || siteDataToUpdate.value),
+    });
 
-      // TODO Временно, до полного перехода на VeeValidate
-      if (data) {
-        currentSite.value = { ...currentSite.value, ...data };
-      }
-
-      siteDataToUpdate.value = {};
-    } catch (error) {
-      if (error.message === 'ValidationError') {
-        updateOrderEmailErrorMessage.value = error.message;
-      } else {
-        updateSiteDataErrorMessage.value = error.message;
-      }
+    // TODO Временно, до полного перехода на VeeValidate
+    if (data) {
+      currentSite.value = { ...currentSite.value, ...data };
     }
+
+    siteDataToUpdate.value = {};
   }
 
   async function uploadRequest(property, file) {
@@ -322,13 +314,23 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
     queryClient.clear();
   }
 
-  async function checkDomainConfiguration(domain = currentSite.value.domain) {
-    isDomainConfigurationError.value = '';
+  async function checkDomainConfiguration(domain, domainFree) {
+    clearDomainConfigurationError();
 
-    if (domain?.toLowerCase().indexOf('.regsolutions.site') < 0) {
-      const data = await lookupDomainMutation.mutateAsync({ domain });
+    const hasAnyDomain = domain || domainFree;
 
-      isDomainConfigurationError.value = !data.result;
+    if (hasAnyDomain) {
+      if (domain) {
+        const data = await lookupDomainMutation.mutateAsync(domain);
+
+        if (data.result) {
+          return data.result;
+        } else {
+          domainConfigurationError.value = 'Платный домен указан, но не подключен';
+        }
+      }
+    } else {
+      domainConfigurationError.value = 'Нет подключенного домена';
     }
   }
 
@@ -341,7 +343,7 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
   }
 
   function clearDomainConfigurationError() {
-    isDomainConfigurationError.value = false;
+    domainConfigurationError.value = null;
   }
 
   function clearSavingDataNotification() {
@@ -350,6 +352,26 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
 
   function handleClearCurrentPagesList() {
     currentPagesList.value = [];
+  }
+
+  function updateDomainFree(value) {
+    const dataFromCache = queryCache.queriesMap[`["site","${currentSite.value.id}"]`]?.state?.data;
+
+    if (dataFromCache) {
+      dataFromCache.domainFree = value;
+    }
+
+    currentSite.value.domainFree = value;
+  }
+
+  function updateDomainCustom(value) {
+    const dataFromCache = queryCache.queriesMap[`["site","${currentSite.value.id}"]`]?.state?.data;
+
+    if (dataFromCache) {
+      dataFromCache.domain = value;
+    }
+
+    currentSite.value.domain = value;
   }
 
   return {
@@ -386,11 +408,14 @@ export const useSiteConfigurationStore = defineStore('siteConfigurationStore', (
     clearUpdateSiteDataError,
     clearSavingDataNotification,
     needShowSavingDataNotification,
-    isDomainConfigurationError,
+    domainConfigurationError,
     clearDomainConfigurationError,
     updateOrderEmailErrorMessage,
     clearUpdateOrderEmailError,
     currentImagesStorage,
     updateUnPublishedChangesCounter,
+    updateDomainCustom,
+    updateDomainFree,
+    checkDomainConfiguration,
   };
 });

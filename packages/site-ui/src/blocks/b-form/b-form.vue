@@ -7,7 +7,7 @@
           :path="block.image"
           :alt="block.contentTitle"
           loading="lazy"
-          :size="config.resize.form.half"
+          :size="resizeConfig.form.half"
           class="b-form__image"
         />
         <DsForm
@@ -26,23 +26,20 @@
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
 import DsForm from 'site-ui/src/design-system/ds-form/ds-form.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
-import { useImageSizer } from 'site-ui/src/design-system/ds-image/use-image-sizer.js';
 import { notificationManager } from 'site-ui/src/design-system/ds-notification/manager/notification-manager.js';
-import { computed } from 'vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
+import { OPTIONS_KEY } from 'site-ui/src/services/constants/constants.js';
+import { getConstructedUrl } from 'site-ui/src/services/get-constructed-url/get-constructed-url.js';
+import { computed, inject } from 'vue';
 
 const property = defineProps({
   block: {
     type: Object,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 
   action: {
@@ -51,7 +48,9 @@ const property = defineProps({
   },
 });
 
-const mediaUrl = useImageSizer(property.block.image, config.resize.form.full);
+const { hosts } = inject(OPTIONS_KEY);
+
+const constructedUrl = getConstructedUrl(property.block.image, hosts, resizeConfig.form.full);
 
 const wrapperClass = computed(() => {
   return property.block.theme ? `b-form__wrapper_theme_${property.block.theme}` : ``;
@@ -59,7 +58,7 @@ const wrapperClass = computed(() => {
 
 function getWrapperStyle() {
   return property.block.theme === 'full'
-    ? `background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), center/cover url('${mediaUrl.value}');`
+    ? `background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), center/cover url('${constructedUrl}');`
     : '';
 }
 
@@ -88,7 +87,7 @@ async function sendForm(formData) {
       item: {
         type: 'plain',
         icon: 'checkmark',
-        title: 'Данные отправлены',
+        title: localizer.t('notifier.form.success'),
       },
     });
   } else {
@@ -98,7 +97,7 @@ async function sendForm(formData) {
       item: {
         type: 'plain',
         icon: 'warning-filled',
-        title: 'Данные не отправлены',
+        title: localizer.t('notifier.form.error'),
       },
     });
   }

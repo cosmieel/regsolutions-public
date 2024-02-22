@@ -1,14 +1,10 @@
 <template>
   <form class="domain-form" @submit.prevent>
     <div class="domain-form__input-wrapper">
-      <UiInput
+      <DomainInput
         v-model.trim="domain"
         class="domain-form__input"
-        :type="'text'"
-        :placeholder="'Домен'"
-        :trailing="'.regsolutions.site'"
         :error-message="domainValidationErrorMessage"
-        :max-length="'63'"
         @keyup.enter="validateDomain"
       />
     </div>
@@ -23,7 +19,8 @@
 </template>
 
 <script setup>
-import { UiButton, UiInput } from 'account-ui';
+import DomainInput from 'account/src/components/text-fields/domain-input.vue';
+import { UiButton } from 'account-ui';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useWizardStore } from '../../stores/wizard-store.js';

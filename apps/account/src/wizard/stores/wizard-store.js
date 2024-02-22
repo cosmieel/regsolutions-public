@@ -1,6 +1,7 @@
+import { generateRandomFreeDomain } from 'account/src/utility/helpers/domain';
 import { callSuccessfullySiteCreationNotification } from 'account/src/utility/notifications/success/successfuly-site-creation';
 import { defineStore, storeToRefs } from 'pinia';
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { fullImageSource } from '../../components/composables/full-image-source.js';
 import { useUploadMutation } from '../../components/composables/upload-mutation.js';
@@ -89,10 +90,7 @@ export const useWizardStore = defineStore('wizardStore', () => {
   });
 
   watch(domain, (value) => {
-    nextTick(() => {
-      domain.value = value.toLowerCase().replaceAll(/[^\d.a-zа-я-]/g, '');
-    });
-    wizardResult.domain = `${value}.regsolutions.site`;
+    wizardResult.domain = value;
     domainValidationErrorMessage.value = '';
   });
 
@@ -126,7 +124,7 @@ export const useWizardStore = defineStore('wizardStore', () => {
       Object.keys(wizardResult).map((item) => (wizardResult[item] = wizard[item]));
 
       selectedBusiness.value = wizard.type;
-      domain.value = wizard.domain.split('.')[0];
+      domain.value = wizard.domain;
       logo.value = wizard.logo;
       logoUri.value = wizard.logo;
       color.value = wizard.color;
@@ -146,11 +144,12 @@ export const useWizardStore = defineStore('wizardStore', () => {
       return;
     }
 
-    const wizardData = {
-      ...wizardResult,
-    };
+    const { domain, ...restWizardResult } = wizardResult;
 
-    await createSiteMutation.mutateAsync(wizardData);
+    await createSiteMutation.mutateAsync({
+      ...restWizardResult,
+      domainFree: domain,
+    });
 
     if (createSiteMutation.isSuccess.value) {
       router.push({ name: 'wizardStepSuccess' });
@@ -251,11 +250,11 @@ export const useWizardStore = defineStore('wizardStore', () => {
   }
 
   async function createSiteByYourself(callback) {
-    const domain = `${Math.random().toString(16).slice(2)}.regsolutions.site`;
+    const domainFree = generateRandomFreeDomain();
 
     const siteData = {
       type: 'OTHER',
-      domain: domain,
+      domainFree,
       name: 'Мой сайт',
       color: '#406cff',
       description: '',

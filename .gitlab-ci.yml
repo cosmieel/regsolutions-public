@@ -1,0 +1,264 @@
+include:
+  - project: 'devops/ci-common'
+    ref: production
+    file:
+      - '/gitlab-pipe/extends.yml'
+
+# Шаблон джобы для деплоя
+
+.deploy-job:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+    CI_DEPLOY_NAMESPACE1: regsolutions
+
+  script:
+    - !reference [.easy-deploy-template, script]
+
+variables:
+  BACKEND_IMAGE: '$CI_REGISTRY/$CI_PROJECT_PATH/backend/$CI_COMMIT_REF_NAME:$CI_PIPELINE_ID'
+  ACCOUNT_IMAGE: '$CI_REGISTRY/$CI_PROJECT_PATH/account/$CI_COMMIT_REF_NAME:$CI_PIPELINE_ID'
+  SITE_IMAGE: '$CI_REGISTRY/$CI_PROJECT_PATH/site/$CI_COMMIT_REF_NAME:$CI_PIPELINE_ID'
+  CADDY_IMAGE: '$CI_REGISTRY/$CI_PROJECT_PATH/caddy/$CI_COMMIT_REF_NAME:$CI_PIPELINE_ID'
+  IMAGEPROXY_IMAGE: '$CI_REGISTRY/$CI_PROJECT_PATH/imageproxy/$CI_COMMIT_REF_NAME:$CI_PIPELINE_ID'
+
+stages:
+  - build
+  - deploy
+
+# Сборка и деплой бекенда ЛК
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-backend-production.yaml
+
+build-backend:
+  stage: build
+  when: manual
+  only:
+    - production
+  variables:
+    CI_BUILD_NAME1: $BACKEND_IMAGE
+    CI_BUILD_DOCKERFILEPATH1: './apps/backend/Dockerfile'
+
+  before_script:
+    - cp ${PRODUCTION_BACKEND_ENV_FILE} ./apps/backend/.env
+
+  script:
+    - !reference [.easy-build-image-template, script]
+
+deploy-backend:
+  stage: deploy
+  needs: [build-backend]
+  only:
+    - production
+  variables:
+    GIT_STRATEGY: none
+    CI_DEPLOY_IMAGE1: $BACKEND_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-backend
+    CI_DEPLOY_NAMESPACE1: regsolutions
+
+  script:
+    - !reference [.easy-deploy-template, script]
+
+# Сборка и деплой бекенда сайтов
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-site-production.yaml
+
+build-site:
+  stage: build
+  when: manual
+  only:
+    - production
+  variables:
+    CI_BUILD_NAME1: $SITE_IMAGE
+    CI_BUILD_DOCKERFILEPATH1: './apps/site/Dockerfile'
+
+  before_script:
+    - cp ${PRODUCTION_BACKEND_ENV_FILE} ./apps/backend/.env
+
+  script:
+    - !reference [.easy-build-image-template, script]
+
+deploy-site:
+  stage: deploy
+  needs: [build-site]
+  only:
+    - production
+  variables:
+    GIT_STRATEGY: none
+    CI_DEPLOY_IMAGE1: $SITE_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-site
+    CI_DEPLOY_NAMESPACE1: regsolutions
+
+  script:
+    - !reference [.easy-deploy-template, script]
+
+# Сборка и деплой фронтенд приложения
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-account-production.yaml
+
+build-account:
+  stage: build
+  when: manual
+  only:
+    - production
+  variables:
+    CI_BUILD_NAME1: $ACCOUNT_IMAGE
+    CI_BUILD_DOCKERFILEPATH1: './apps/account/Dockerfile'
+
+  script:
+    - !reference [.easy-build-image-template, script]
+
+deploy-account:
+  stage: deploy
+  needs: [build-account]
+  only:
+    - production
+  variables:
+    GIT_STRATEGY: none
+    CI_DEPLOY_IMAGE1: $ACCOUNT_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-account
+    CI_DEPLOY_NAMESPACE1: regsolutions
+
+  script:
+    - !reference [.easy-deploy-template, script]
+
+# Сборка и деплой Caddy сервера
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-caddy-production.yaml
+
+build-caddy:
+  stage: build
+  when: manual
+  only:
+    - production
+  variables:
+    CI_BUILD_NAME1: $CADDY_IMAGE
+    CI_BUILD_DOCKERFILEPATH1: './infrastructure/caddy/Dockerfile'
+
+  script:
+    - !reference [.easy-build-image-template, script]
+
+deploy-caddy:
+  stage: deploy
+  needs: [build-caddy]
+  only:
+    - production
+  variables:
+    GIT_STRATEGY: none
+    CI_DEPLOY_IMAGE1: $CADDY_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-caddy
+    CI_DEPLOY_NAMESPACE1: regsolutions
+
+  script:
+    - !reference [.easy-deploy-template, script]
+
+# Сборка и деплой Imageproxy сервера
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-imageproxy-production.yaml
+
+build-imageproxy:
+  stage: build
+  when: manual
+  only:
+    - production
+  variables:
+    CI_BUILD_NAME1: $IMAGEPROXY_IMAGE
+    CI_BUILD_DOCKERFILEPATH1: './infrastructure/imageproxy/Dockerfile'
+
+  script:
+    - !reference [.easy-build-image-template, script]
+
+deploy-imageproxy:
+  stage: deploy
+  needs: [build-imageproxy]
+  only:
+    - production
+  variables:
+    GIT_STRATEGY: none
+    CI_DEPLOY_IMAGE1: $IMAGEPROXY_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-imageproxy
+    CI_DEPLOY_NAMESPACE1: regsolutions
+
+  script:
+    - !reference [.easy-deploy-template, script]
+
+# Деплой джобы outbox:push-event
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-job-outbox-production.yaml
+
+deploy-job-outbox:
+  extends: .deploy-job
+  needs: [deploy-backend]
+  only:
+    - production
+  variables:
+    CI_DEPLOY_IMAGE1: $BACKEND_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-job-outbox
+
+# Деплой джобы ssl
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-job-ssl-production.yaml
+
+deploy-job-ssl:
+  extends: .deploy-job
+  needs: [deploy-backend]
+  only:
+    - production
+  variables:
+    CI_DEPLOY_IMAGE1: $BACKEND_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-job-ssl
+
+# Деплой джобы bnovo-import
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-job-bnovo-import-production.yaml
+
+deploy-job-bnovo-import:
+  extends: .deploy-job
+  needs: [deploy-backend]
+  only:
+    - production
+  variables:
+    CI_DEPLOY_IMAGE1: $BACKEND_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-job-bnovo-import
+
+# Деплой джобы sub-check-payment
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-job-sub-check-payment-production.yaml
+
+deploy-job-sub-check-payment:
+  extends: .deploy-job
+  needs: [deploy-backend]
+  only:
+    - production
+  variables:
+    CI_DEPLOY_IMAGE1: $BACKEND_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-job-sub-check-payment
+
+# Деплой джобы email-send
+# Конфиг сервиса для K8s:
+# git.reg.ru/regru/srs-docker/-/blob/production/kube/configs/regsolutions/regsolutions-job-email-send-production.yaml
+
+deploy-job-email-send:
+  extends: .deploy-job
+  needs: [deploy-backend]
+  only:
+    - production
+  variables:
+    CI_DEPLOY_IMAGE1: $BACKEND_IMAGE
+    CI_DEPLOY_SERVICENAME1: regsolutions-job-email-send
+
+# Деплой API docs на GitLab Pages
+
+pages:
+  image: node:latest
+  stage: deploy
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+  script:
+    - npm install -g @redocly/cli
+    - redocly join apps/backend/src/modules/account/docs/api/account-api.yaml apps/backend/src/modules/builder/docs/api/builder-api.yaml -o tmp/api.yaml
+    - redocly build-docs -o public/index.html tmp/api.yaml

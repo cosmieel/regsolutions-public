@@ -51,6 +51,7 @@
           @delete-catalog-item="onDeleteCatalogItem"
           @duplicate-catalog-item="onDuplicateCatalogItem"
           @update-active-state="onUpdateActiveState"
+          @update-order="onUpdateOrder"
         />
       </template>
     </UiCard>
@@ -116,7 +117,7 @@ async function updateCatalogData() {
 }
 
 async function deleteCatalog() {
-  await catalogConfigurationStore.deleteCatalogRequest(currentCatalog.value.id);
+  await catalogConfigurationStore.deleteCatalogByIds([currentCatalog.value.id]);
 
   notifyer.success({
     message: 'Каталог успешно удалён',
@@ -148,6 +149,10 @@ const onDuplicateCatalogItem = async (catalogItemId) => {
 
 const onUpdateActiveState = async (active, id) => {
   await catalogItemsConfigurationStore.updateActiveState(id, active);
+};
+
+const onUpdateOrder = async () => {
+  await catalogItemsConfigurationStore.batchUpdateCatalogItemsRequest();
 };
 
 const isSaveButtonDisabled = computed(() => {

@@ -10,3 +10,11 @@ const fetchValidateDomain = async (domain) => {
 export function useValidateDomainMutation() {
   return useMutation((domain) => fetchValidateDomain(domain));
 }
+
+const fetchValidateDomainNew = async (value) => {
+  return await api.validateDomainNew(value);
+};
+
+export function useValidateDomainMutationNew() {
+  return useMutation((domain) => fetchValidateDomainNew(domain));
+}

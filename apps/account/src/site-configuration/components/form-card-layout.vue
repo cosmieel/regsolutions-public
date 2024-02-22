@@ -1,5 +1,5 @@
 <template>
-  <UiCard :title="title" :description="description">
+  <UiCard :title="title" :description="description" :need-divider="needDivider">
     <template #ui-card-button>
       <UiButton
         size="small"
@@ -45,6 +45,12 @@ defineProps({
     type: Boolean,
     required: false,
     default: false,
+  },
+
+  needDivider: {
+    type: Boolean,
+    required: false,
+    default: true,
   },
 });
 </script>

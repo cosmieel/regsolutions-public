@@ -26,6 +26,7 @@
 
 <script setup>
 import { UiButton, UiSvg } from 'account-ui';
+import isEmpty from 'lodash/isEmpty';
 import { storeToRefs } from 'pinia';
 import { onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -36,7 +37,7 @@ const userSitesStore = useUserSitesStore();
 const { sites, isSuccess, isLoading } = storeToRefs(userSitesStore);
 
 const redirectIfSitesListIsNotEmpty = (isSuccess) => {
-  if (isSuccess && sites.value.length > 0) {
+  if (isSuccess && !isEmpty(sites.value)) {
     router.push({ name: 'accountMain' });
   }
 };

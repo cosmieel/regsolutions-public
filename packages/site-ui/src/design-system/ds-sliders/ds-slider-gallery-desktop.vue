@@ -28,9 +28,7 @@
             :path="image.url"
             :alt="image.title || `image-${chankIndex}-${index}`"
             loading="lazy"
-            :size="
-              index === 0 ? config.resize.gallery.desktop.first : config.resize.gallery.desktop.rest
-            "
+            :size="resizeConfig.gallery.hero.desktop.code[`${chank.length}${index}`]"
             class="ds-slider-gallery-desktop__image"
             @click="emit('click', image.realIndex)"
           />
@@ -41,7 +39,7 @@
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 import { computed } from 'vue';
 

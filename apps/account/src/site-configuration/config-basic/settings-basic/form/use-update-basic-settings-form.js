@@ -40,7 +40,10 @@ export const useUpdateBasicSettingsForm = () => {
     })();
 
   provide(FORM_VALUES_PROVIDE_KEY, values);
-  provide(FROM_CURRENT_SITE_DATA_KEY, siteConfigurationStore.currentSite);
+  provide(
+    FROM_CURRENT_SITE_DATA_KEY,
+    computed(() => siteConfigurationStore.currentSite)
+  );
 
   return {
     isDirty,

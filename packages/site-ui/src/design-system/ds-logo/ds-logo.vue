@@ -1,22 +1,17 @@
 <template>
   <a class="ds-logo" href="/">
-    <DsImage :path="url" :alt="alt" class="ds-logo__image" :size="config.resize.logo" />
+    <DsImage :path="url" :alt="alt" class="ds-logo__image" :size="resizeConfig.logo" />
   </a>
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 
 defineProps({
   url: {
     type: String,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 
   alt: {

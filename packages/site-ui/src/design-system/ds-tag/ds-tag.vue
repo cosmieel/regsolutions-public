@@ -30,7 +30,7 @@ defineProps({
   gap: 3px;
   padding: 6px 10px 6px 8px;
   color: var(--font-thertiary);
-  background-color: var(--bg-badge-primary);
+  background-color: var(--bg-tag);
   border-radius: $radius-s;
 
   @add-mixin desktop-all {

@@ -1,10 +1,11 @@
 <template>
-  <img :src="mediaUrl" :alt="path" v-bind="$attrs" />
+  <img :src="constructedUrl" :alt="alt" v-bind="$attrs" />
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useImageSizer } from './use-image-sizer.js';
+import { OPTIONS_KEY } from 'site-ui/src/services/constants/constants.js';
+import { getConstructedUrl } from 'site-ui/src/services/get-constructed-url/get-constructed-url.js';
+import { computed, inject } from 'vue';
 
 const props = defineProps({
   size: {
@@ -20,12 +21,11 @@ const props = defineProps({
   },
 });
 
-const regex = /(^https:\/\/)|(^http:\/\/)/;
+const { hosts } = inject(OPTIONS_KEY);
 
-const mediaUrl = regex.test(props.path)
-  ? props.path
-  : useImageSizer(
-      computed(() => props.path),
-      props.size
-    );
+const constructedUrl = computed(() => {
+  return getConstructedUrl(props.path, hosts, props.size);
+});
+
+const alt = computed(() => props.path.split('/').at(-1));
 </script>

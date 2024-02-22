@@ -4,6 +4,7 @@ export default {
     dsn: import.meta.env.VITE_SENTRY_DSN,
   },
   resizerUrl: import.meta.env.VITE_IMAGE_SIZER_URL,
+  freeDomain: '.regsolutions.site',
   resize: {
     logo: 'x200',
     favicon: '48x48',

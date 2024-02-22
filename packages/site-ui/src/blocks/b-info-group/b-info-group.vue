@@ -17,7 +17,7 @@
               :image="card.image"
               :button="getButtonParameters(card)"
               :index="index"
-              :resizer-size="getImageSize(block.cards.length)"
+              :resizer-size="resizeConfig.infoCard[block.theme]"
               @click="showModal"
             />
           </div>
@@ -30,7 +30,7 @@
             :image="card.image"
             :button="getButtonParameters(card)"
             :index="index"
-            :resizer-size="getImageSize(block.cards.length)"
+            :resizer-size="resizeConfig.infoCard[block.theme]"
             @click="showModal"
           />
         </ds-slide>
@@ -46,13 +46,18 @@
             :image="card.image"
             :button="getButtonParameters(card)"
             :index="index"
-            :resizer-size="getImageSize(currentItems.length)"
+            :resizer-size="resizeConfig.infoCard[block.theme]"
             @click="showModal"
           />
         </ds-list-item>
       </ds-list>
       <div v-if="itemsNumber < block.cards.length" class="b-info-group__button-wrapper">
-        <DsButton theme="ghost" icon="chevron-m-down" text="Показать еще" @click="showMore" />
+        <DsButton
+          theme="ghost"
+          icon="chevron-m-down"
+          :text="localizer.t('cardGroup.show')"
+          @click="showMore"
+        />
       </div>
     </ds-container>
     <ds-modal v-if="modal" @close="modal = false">
@@ -78,7 +83,7 @@
 
 <script setup>
 import { useBreakPoint } from 'site-ui/src/break-point/break-point';
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
 import DsInfoCardModal from 'site-ui/src/design-system/ds-info-card/ds-info-card-modal.vue';
@@ -88,7 +93,7 @@ import DsList from 'site-ui/src/design-system/ds-list/ds-list.vue';
 import DsModal from 'site-ui/src/design-system/ds-modal/ds-modal.vue';
 import DsSlide from 'site-ui/src/design-system/ds-slider/ds-slide.vue';
 import DsSlider from 'site-ui/src/design-system/ds-slider/ds-slider.vue';
-import { getSizesByCount } from 'site-ui/src/services/get-sizes-by-count/get-sizes-by-count';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { trimString } from 'site-ui/src/services/trim-string/trim-string.js';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 import { ref, computed, onUpdated } from 'vue';
@@ -101,11 +106,6 @@ const property = defineProps({
     type: Object,
     required: true,
   },
-
-  storageHost: {
-    type: String,
-    default: '',
-  },
 });
 
 const typeSlider = computed(() => {
@@ -115,14 +115,6 @@ const typeSlider = computed(() => {
 const controls = computed(() => {
   return breakPoint.isMobileAll ? '' : 'primary';
 });
-
-function getImageSize(itemsCount) {
-  if (property.block.theme === 'compact') {
-    return config.resize.infoCard.compact;
-  }
-
-  return getSizesByCount(itemsCount, 3, config.resize.infoCard[property.block.theme]);
-}
 
 function getKey(index) {
   return `${index}${Math.random()}`;

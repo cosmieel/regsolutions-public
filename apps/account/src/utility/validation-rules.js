@@ -76,7 +76,7 @@ export const positiveNumberSchema = () =>
       .safeParse(value);
 
     return processed.success ? processed.data : value;
-  }, numberSchema());
+  }, numberSchema().transform(String));
 
 export const tagSchema = custom(() => true, restrictedSymbols);
 

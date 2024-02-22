@@ -14,6 +14,7 @@
 import DsModal from 'site-ui/src/design-system/ds-modal/ds-modal.vue';
 import { notificationManager } from 'site-ui/src/design-system/ds-notification/manager/notification-manager.js';
 import DsOrderForm from 'site-ui/src/design-system/ds-order-form/ds-order-form.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { computed, toRaw } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -47,14 +48,21 @@ const property = defineProps({
 
 const privacyText = computed(() => {
   const rulesLink = property.checkout.terms?.rulesLink
-    ? `<a class='ds-link' href="${property.checkout.terms.rulesLink}" target="_blank">правилами пользования сайтом</a>`
-    : 'правилами пользования сайтом';
+    ? `<a class='ds-link' href="${property.checkout.terms.rulesLink}" target="_blank">${localizer.t(
+        'order.rules'
+      )}</a>`
+    : localizer.t('order.rules');
 
   const policyLink = property.checkout.terms?.policyLink
-    ? `<a class='ds-link' href="${property.checkout.terms.policyLink}" target="_blank">политикой обработки персональных данных</a>`
-    : 'политикой обработки персональных данных';
+    ? `<a class='ds-link' href="${
+        property.checkout.terms.policyLink
+      }" target="_blank">${localizer.t('order.policy')}</a>`
+    : localizer.t('order.policy');
 
-  return `Отправляя заявку, вы соглашаетесь с ${rulesLink} и ${policyLink}`;
+  return localizer.t('order.privacy', {
+    rules: rulesLink,
+    policy: policyLink,
+  });
 });
 
 async function sendForm(formData) {
@@ -87,7 +95,7 @@ async function sendForm(formData) {
       item: {
         type: 'plain',
         icon: 'checkmark',
-        title: 'Заказ отправлен',
+        title: localizer.t('notifier.order.success'),
       },
     });
 
@@ -99,7 +107,7 @@ async function sendForm(formData) {
       item: {
         type: 'plain',
         icon: 'warning-filled',
-        title: 'Заказ не отправлен',
+        title: localizer.t('notifier.order.error'),
       },
     });
   }

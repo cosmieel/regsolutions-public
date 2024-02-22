@@ -7,6 +7,14 @@ const fetchLookupDomain = async (domain) => {
   return result;
 };
 
+const fetchLookupDomainNew = async (domain) => {
+  return await api.lookupDomainNew(domain);
+};
+
 export function useLookupDomainMutation() {
   return useMutation((domain) => fetchLookupDomain(domain));
+}
+
+export function useLookupDomainMutationNew() {
+  return useMutation((domain) => fetchLookupDomainNew(domain));
 }

@@ -11,7 +11,7 @@
         :meta="data.meta"
         :options="data.options"
         :catalog-items="data.content.catalogItems"
-        :storage-host="data.options.hosts.storage"
+        :catalogs="data.content.catalogs"
         @mouseenter="cursorEnter"
         @mouseleave="cursorLeave"
       />
@@ -21,7 +21,6 @@
       :blocks="data.content.blocks"
       :color="data.options.color"
       :action="data.options.action"
-      :storage-host="data.options.hosts.storage"
       :catalogs="data.content.catalogs"
       :catalog-items="data.content.catalogItems"
       @before-enter-main="beforeEnterBlock"
@@ -42,7 +41,6 @@
         v-if="data.options.layout?.footer"
         :meta="data.meta"
         :options="data.options"
-        :storage-host="data.options.hosts.storage"
         :footer="data.options.layout.footer"
         @mouseenter="cursorEnter"
         @mouseleave="cursorLeave"
@@ -60,14 +58,13 @@ import DsHeader from 'site-ui/src/design-system/ds-header/ds-header.vue';
 import DsMain from 'site-ui/src/design-system/ds-main/ds-main.vue';
 import DsNotificationWrapper from 'site-ui/src/design-system/ds-notification/ds-notification-wrapper.vue';
 import DsRegPartner from 'site-ui/src/design-system/ds-reg-partner/ds-reg-partner.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { OPTIONS_KEY } from 'site-ui/src/services/constants/constants.js';
 import { initStyle } from 'site-ui/src/services/init-style/init-style.js';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 // eslint-disable-next-line import/no-unresolved
 import { register } from 'swiper/element/bundle';
 import { onBeforeMount, provide } from 'vue';
-
-register();
 
 const property = defineProps({
   data: {
@@ -81,11 +78,17 @@ const property = defineProps({
   },
 });
 
+register();
+
+provide(OPTIONS_KEY, property.data.options);
+
 const breakPoint = useBreakPoint();
 breakPoint.init();
 
 const siteMode = useSiteMode();
 siteMode.changeMode(property.mode);
+
+localizer.setLanguage(property.data.options.language);
 
 onBeforeMount(() => {
   if (!property.data.options.color?.hex) {
@@ -145,8 +148,6 @@ function cursorLeave(event) {
     emit('cursorLeave', event.target);
   }
 }
-
-provide(OPTIONS_KEY, property.data.options);
 </script>
 
 <style lang="postcss" scoped>

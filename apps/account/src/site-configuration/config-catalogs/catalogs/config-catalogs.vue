@@ -16,6 +16,7 @@
           :catalogs-list="currentCatalogsListFiltered"
           @delete-catalog="onDeleteCatalog"
           @update-active-state="onUpdateActiveState"
+          @update-order="onUpdateOrder"
         />
       </template>
     </UiCard>
@@ -54,7 +55,6 @@ const {
   catalogsError,
   catalogsFetchStatus,
   currentCatalogsListFiltered,
-  deletedItems,
 } = storeToRefs(catalogConfigurationStore);
 
 const onDeleteCatalog = async (catalogId) => {
@@ -65,12 +65,12 @@ const onUpdateActiveState = async (active, id) => {
   await catalogConfigurationStore.updateActiveState(id, active);
 };
 
+const onUpdateOrder = async () => {
+  await catalogConfigurationStore.batchUpdateCatalogRequest();
+};
+
 onMounted(async () => {
-  if (deletedItems.value.length > 0) {
-    for (const item of deletedItems.value) {
-      await catalogConfigurationStore.deleteCatalogRequest(item);
-    }
-  }
+  await catalogConfigurationStore.forceDeletion();
 });
 </script>
 

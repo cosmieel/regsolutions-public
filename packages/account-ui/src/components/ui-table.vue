@@ -6,14 +6,40 @@
           <slot name="ui-table-head"></slot>
         </thead>
         <tbody class="ui-table__body">
-          <slot name="ui-table-body"></slot>
+          <DraggableContainer
+            v-if="isDraggable"
+            :list="list"
+            class="ui-table__dragable-group"
+            ghost-class="ui-table__dragable-element"
+            :animation="150"
+            @change="handleChangeOrder"
+          >
+            <slot name="ui-table-body"></slot>
+          </DraggableContainer>
+          <slot v-else name="ui-table-body"></slot>
         </tbody>
       </table>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { computed } from 'vue';
+import { VueDraggableNext as DraggableContainer } from 'vue-draggable-next';
+
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+const emit = defineEmits(['change-order']);
+
+const handleChangeOrder = () => emit('change-order');
+
+const isDraggable = computed(() => props.list.length > 1);
+</script>
 
 <style lang="postcss" scoped>
 .ui-table {
@@ -40,8 +66,24 @@
     }
   }
 
-  &__body {
-    @apply divide-y divide-gray-200;
+  &__dragable-group {
+    @apply divide-y divide-gray-200 cursor-grab;
+
+    &:active {
+      @apply cursor-grabbing;
+    }
+
+    :deep(.sortable-chosen) {
+      @apply rounded-lg;
+    }
+  }
+
+  :deep(&__dragable-element) {
+    @apply outline outline-2 outline-blue-500 rounded-lg bg-blue-50;
+
+    & > * {
+      @apply opacity-0;
+    }
   }
 }
 </style>

@@ -70,7 +70,7 @@ const components = {
 const fieldTypeAndComponentMap = {
   text: 'input',
   email: 'input',
-  tel: 'input',
+  phone: 'input',
   input: 'input',
   textarea: 'textarea',
 };
@@ -88,7 +88,7 @@ const getDefaultField = function (fieldType) {
       required: true,
     },
     {
-      type: 'tel',
+      type: 'phone',
       label: 'Телефон',
       required: false,
     },
@@ -131,7 +131,7 @@ const onAddField = (fieldType) => {
 
   switch (fieldType) {
     case 'email':
-    case 'tel':
+    case 'phone':
     case 'text': {
       if (isFieldExists(fieldType)) {
         return;

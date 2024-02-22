@@ -19,7 +19,7 @@ export const useUpdatePageBasicSettings = () => {
 
   const { values, handleSubmit, resetForm, initialValues, meta } = useForm({
     initialValues: getInitialValues(pageConfigurationStore.currentPage),
-    validationSchema,
+    validationSchema: validationSchema(pageConfigurationStore.currentPage.main),
   });
 
   const isSubmitLoading = ref(false);

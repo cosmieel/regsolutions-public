@@ -7,26 +7,31 @@
             :title="item.title"
             :description="trimString(item.text, 80)"
             :image="item.image"
-            :resizer-params="imageSize"
+            :resizer-params="resizeConfig.products"
             :url="getUrl(item)"
           />
         </ds-list-item>
       </ds-list>
       <div v-if="itemsNumber < catalogs.length" class="b-catalog__button-wrapper">
-        <DsButton theme="ghost" icon="chevron-m-down" text="Показать еще" @click="showMore" />
+        <DsButton
+          theme="ghost"
+          icon="chevron-m-down"
+          :text="localizer.t('cardGroup.show')"
+          @click="showMore"
+        />
       </div>
     </ds-container>
   </article>
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
 import DsListItem from 'site-ui/src/design-system/ds-list/ds-list-item.vue';
 import DsList from 'site-ui/src/design-system/ds-list/ds-list.vue';
 import DsProductCard from 'site-ui/src/design-system/ds-product-card/ds-product-card.vue';
-import { getSizesByCount } from 'site-ui/src/services/get-sizes-by-count/get-sizes-by-count';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { trimString } from 'site-ui/src/services/trim-string/trim-string.js';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 import { computed, ref } from 'vue';
@@ -42,11 +47,6 @@ const property = defineProps({
   catalogs: {
     type: Array,
     default: () => [],
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 });
 
@@ -69,10 +69,6 @@ const currentCatalogs = computed(() => {
 
   return catalogs.value.slice(0, itemsNumber.value);
 });
-
-const imageSize = computed(() =>
-  getSizesByCount(currentCatalogs.value.length, 3, config.resize.catalogs.size)
-);
 
 function showMore() {
   if (siteMode.isEdit) {

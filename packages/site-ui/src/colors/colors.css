@@ -9,7 +9,9 @@
   --font-thertiary: var(--basic-02);
   --font-disable: var(--basic-05);
   --font-disable-inverse: var(--basic-10);
+  --font-success: var(--porto-03);
   --font-danger: var(--manila-03);
+  --font-danger-disable: var(--manila-05);
   --font-warning: var(--osaka-03);
 
   --border-divider: var(--basic-07);
@@ -30,9 +32,10 @@
   --bg-button-secondary-default: var(--basic-09);
   --bg-button-secondary-hover: var(--basic-08);
   --bg-button-secondary-active: var(--basic-07);
-  --bg-button-danger-default: var(--basic-09);
-  --bg-button-danger-hover: var(--basic-08);
-  --bg-button-danger-active: var(--basic-07);
+  --bg-button-danger-default: var(--manila-07);
+  --bg-button-danger-hover: var(--manila-06);
+  --bg-button-danger-active: var(--manila-07);
+  --bg-button-danger-disable: var(--manila-07);
   --bg-button-primary-inverse-default: var(--basic-10);
   --bg-button-primary-inverse-hover: var(--basic-09);
   --bg-button-primary-inverse-active: var(--basic-08);
@@ -40,9 +43,15 @@
   --bg-button-secondary-inverse-hover: var(--opacity-07);
   --bg-button-secondary-inverse-active: var(--opacity-06);
   --bg-button-disable: var(--basic-08);
-  --bg-badge-primary: var(--basic-09);
+  --bg-tag: var(--basic-09);
   --bg-badge-overlay-dark: var(--opacity-01);
   --bg-badge-overlay-light: var(--opacity-07);
+  --bg-badge-red-soft: var(--manila-07);
+  --bg-badge-orange-soft: var(--osaka-07);
+  --bg-badge-green-soft: var(--porto-07);
+  --bg-badge-red: var(--manila-03);
+  --bg-badge-orange: var(--osaka-03);
+  --bg-badge-green: var(--porto-03);
   --bg-input-default: var(--basic-09);
   --bg-input-hover: var(--basic-07);
   --bg-input-active: var(--basic-09);

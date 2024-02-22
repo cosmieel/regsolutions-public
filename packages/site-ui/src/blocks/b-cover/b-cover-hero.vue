@@ -16,7 +16,7 @@
           v-if="block.images?.length === 1"
           :path="block.images[0]"
           :alt="block.contentTitle"
-          :size="config.resize.cover.hero.single"
+          :size="resizeConfig.cover.hero.single"
           class="b-cover-hero__image"
         />
         <ds-slider
@@ -32,7 +32,7 @@
               :path="image"
               :alt="block.contentTitle"
               loading="lazy"
-              :size="config.resize.cover.hero.slide"
+              :size="resizeConfig.cover.hero.slide"
               class="b-cover-hero__image"
             />
           </ds-slide>
@@ -85,7 +85,7 @@
 
 <script setup>
 import { useBreakPoint } from 'site-ui/src/break-point/break-point';
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsGradient from 'site-ui/src/design-system/ds-gradient/ds-gradient.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
@@ -102,11 +102,6 @@ defineProps({
   block: {
     type: Object,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 });
 

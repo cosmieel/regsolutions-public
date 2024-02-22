@@ -1,15 +1,20 @@
-import { useQueryClient } from '@tanstack/vue-query';
+import { useQueryClient, useIsFetching } from '@tanstack/vue-query';
 import { notifyer } from 'account/src/instances/notifyer.js';
+import { offsetLimit } from 'account-ui/src/utility/helpers/pagination.js';
+import isEmpty from 'lodash/isEmpty';
 import { defineStore, storeToRefs } from 'pinia';
-import { onMounted, ref, watch } from 'vue';
+import { computed, inject, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { IS_ADMIN_PROVIDE_KEY } from '../../app-provider/constants.js';
 import { getAllPages } from '../../site-configuration/composables/pages-query.js';
 import { useUserAccountStore } from '../../user-account/stores/user-account.js';
 import { useDeleteSiteMutation } from '../composables/delete-site-mutation.js';
 import { useDuplicateSiteMutation } from '../composables/duplicate-site-mutation.js';
 import { usePublishSiteMutation } from '../composables/publish-site-mutation.js';
+import { getAllSitesForAdmin } from '../composables/sites-admin-query.js';
 import { getAllSites, useSitesQuery } from '../composables/sites-query.js';
 import { useUpdateSiteMutation } from '../composables/update-site-mutation.js';
+import { SITES_PER_PAGE } from '../constants.js';
 
 export const useUserSitesStore = defineStore('userSitesStore', () => {
   const route = useRoute();
@@ -23,23 +28,51 @@ export const useUserSitesStore = defineStore('userSitesStore', () => {
   const userAccountStore = useUserAccountStore();
   const { currentImagesStorage } = storeToRefs(userAccountStore);
 
-  const sitesList = ref('');
+  const sitesList = ref([]);
   const subscriptionNotExistsErrorMessage = ref('');
   const currentSiteId = ref('');
   const mainPages = ref([]);
+  const page = ref(route.query.page || 1);
+  const total = ref(0);
+  const searchValue = ref('');
 
   const { isLoading, isError, isSuccess, data: sites, error } = useSitesQuery();
 
-  async function fetchSitesListData() {
-    sitesList.value = await queryClient.fetchQuery({
+  const isAdmin = inject(IS_ADMIN_PROVIDE_KEY);
+
+  const isEmptySearchResult = computed(() => {
+    if (isAdmin.value) {
+      return isEmpty(sitesList.value);
+    }
+
+    return false;
+  });
+
+  async function fetchSites(query = {}) {
+    if (isAdmin.value) {
+      return await queryClient.fetchQuery({
+        queryKey: ['sites'],
+        queryFn: async () => await getAllSitesForAdmin(query),
+      });
+    }
+
+    return await queryClient.fetchQuery({
       queryKey: ['sites'],
-      queryFn: async () => await getAllSites(),
+      queryFn: async () => await getAllSites(query),
+    });
+  }
+
+  async function fetchSitesListData() {
+    const response = await fetchSites({
+      domain: searchValue.value,
+      ...offsetLimit(page.value, SITES_PER_PAGE),
     });
 
-    sitesList.value = sitesList.value.sort(
-      (a, b) => new Date(a.dateCreate) - new Date(b.dateCreate)
-    );
+    sitesList.value = response?.sites || [];
+    total.value = response?.totalCount || 0;
   }
+
+  const isFetchingSites = useIsFetching({ queryKey: ['sites'] });
 
   async function duplicateSiteRequest(id) {
     try {
@@ -63,6 +96,10 @@ export const useUserSitesStore = defineStore('userSitesStore', () => {
       await deleteSiteMutation.mutateAsync({ id });
 
       if (deleteSiteMutation.isSuccess.value) {
+        if (sitesList.value.length <= 1) {
+          page.value = 1;
+        }
+
         await fetchSitesListData();
 
         localStorage.removeItem(`freeDomainProps_${id}`);
@@ -71,6 +108,11 @@ export const useUserSitesStore = defineStore('userSitesStore', () => {
         notifyer.success({
           message: 'Сайт успешно удалён',
         });
+
+        if (!total.value) {
+          page.value = 1;
+          router.push({ name: 'accountMainEmpty' });
+        }
       }
     } catch (error) {
       console.log(error);
@@ -174,14 +216,25 @@ export const useUserSitesStore = defineStore('userSitesStore', () => {
     return mainPages.value;
   }
 
+  async function handleSearch(value) {
+    page.value = 1;
+    router.push({ name: 'accountMain' });
+
+    if (searchValue.value !== value) {
+      searchValue.value = value;
+
+      await fetchSitesListData();
+    }
+  }
+
   watch(
     () => route.name,
     async (value) => {
       if (value === 'accountMain') {
         await fetchSitesListData();
 
-        if (sitesList.value.length > 0) {
-          router.push({ name: 'accountMain' });
+        if (sitesList.value?.length > 0) {
+          router.push({ name: 'accountMain', query: { ...route.query } });
 
           await fetchPages();
         }
@@ -191,8 +244,15 @@ export const useUserSitesStore = defineStore('userSitesStore', () => {
     }
   );
 
+  async function onPageSelect(currentPage) {
+    page.value = currentPage;
+    await fetchSitesListData();
+    await fetchPages();
+  }
+
   onMounted(async () => {
     await fetchSitesListData();
+    await fetchPages();
   });
 
   return {
@@ -214,5 +274,12 @@ export const useUserSitesStore = defineStore('userSitesStore', () => {
     currentImagesStorage,
     fetchPages,
     mainPages,
+    searchValue,
+    handleSearch,
+    onPageSelect,
+    isAdmin,
+    isEmptySearchResult,
+    total,
+    isFetchingSites,
   };
 });

@@ -13,6 +13,26 @@
         <div class="product-info__item-inner">
           <FormSelect :name="CATALOG_ID_KEY" label="Выберите каталог" :options="catalogList" />
           <FormInput
+            :name="ORDER_INDEX_KEY"
+            :label="'Очередность в списке'"
+            :placeholder="'Очередность в списке'"
+            class="product-info__input product-info__price"
+            :type="'text'"
+            :max-length="'10'"
+          />
+        </div>
+      </div>
+      <div class="product-info__item">
+        <div class="product-info__item-inner">
+          <FormInput
+            :name="NAME_KEY"
+            class="product-info__input"
+            :type="'text'"
+            label="Название товара"
+            counter="200"
+            placeholder="Название товара"
+          />
+          <FormInput
             :name="SLUG_KEY"
             class="product-info__input"
             :type="'text'"
@@ -24,23 +44,15 @@
       </div>
       <div class="product-info__item">
         <FormTextArea
-          :name="NAME_KEY"
-          label="Название товара"
-          counter="200"
-          placeholder="Название товара"
-        />
-      </div>
-      <div class="product-info__item">
-        <FormTextArea
           :name="DESCRIPTION"
           label="Описание товара"
           counter="2000"
           placeholder="Описание товара"
-        />
-        <div class="product-info__note">
-          Дополнительная информация о товаре. Описание будет расположено на странице товара под
-          названием
-        </div>
+        >
+          <template #afterLabel>
+            <CatalogItemDescriptionTooltip />
+          </template>
+        </FormTextArea>
       </div>
       <div class="product-info__item">
         <div class="product-info__item-inner">
@@ -106,6 +118,16 @@
         <div class="product-info__divider"></div>
       </div>
       <div class="product-info__item">
+        <FormInput
+          :name="COUNT_KEY"
+          class="product-info__input"
+          :type="'text'"
+          :placeholder="'Количество доступных единиц'"
+          :label="'Количество доступных единиц'"
+          :max-length="'50'"
+        />
+      </div>
+      <div class="product-info__item">
         <FormTagsInput :name="TAGS_KEY" label="Теги" placeholder="Например: Новая коллекция" />
       </div>
       <div class="product-info__item">
@@ -138,16 +160,6 @@
           :max-length="'50'"
         />
       </div>
-      <div class="product-info__item">
-        <FormInput
-          :name="COUNT_KEY"
-          class="product-info__input"
-          :type="'text'"
-          :placeholder="'Количество доступных единиц'"
-          :label="'Количество доступных единиц'"
-          :max-length="'50'"
-        />
-      </div>
     </div>
   </div>
 </template>
@@ -155,6 +167,7 @@
 <script setup>
 import { useCurrencySymbol } from 'account/src/utility/composition/use-currency-symbol';
 import { computed, inject, ref } from 'vue';
+import CatalogItemDescriptionTooltip from './catalog-item-description-tooltip.vue';
 import FormFileSectionMultiple from '../../../../../components/form/form-file-section-multiple.vue';
 import FormInput from '../../../../../components/form/form-input.vue';
 import FormSelect from '../../../../../components/form/form-select.vue';
@@ -179,6 +192,7 @@ import {
   MEDIA_UPLOAD_KEY,
   MEDIA_UPLOAD_LOADING_KEY,
   CURRENT_CATALOG_KEY,
+  ORDER_INDEX_KEY,
   // PRICE_UNIT_KEY,
 } from '../form/constants.js';
 

@@ -1,8 +1,18 @@
+import { FetchHttpClient } from 'account/src/data/network/fetch-http-client-impl.js';
+import { constructQueryParameters } from 'account/src/data/network/utility/construct-query-parameters.js';
 import config from './config.js';
 
+const httpClient = new FetchHttpClient();
+
 export const api = {
-  getAllCatalogs: async (siteId) => {
-    const response = await fetch(`${config.catalogApiUrl}/${siteId}`, { credentials: 'include' });
+  getAllCatalogs: async (siteId, parameters = {}) => {
+    let requestUrl = `${config.catalogApiUrl}/${siteId}`;
+
+    if (parameters?.queryParameters) {
+      requestUrl = requestUrl + constructQueryParameters(parameters.queryParameters);
+    }
+
+    const response = await fetch(requestUrl, { credentials: 'include' });
     const result = await response.json();
 
     if (result?.error) {
@@ -16,8 +26,14 @@ export const api = {
     return result;
   },
 
-  getAllCatalogItems: async (data) => {
-    const response = await fetch(`${config.catalogApiUrl}/item/${data.siteId}/${data.catalogId}`, {
+  getAllCatalogItems: async (data, parameters = {}) => {
+    let requestUrl = `${config.catalogApiUrl}/item/${data.siteId}/${data.catalogId}`;
+
+    if (parameters?.queryParameters) {
+      requestUrl = requestUrl + constructQueryParameters(parameters.queryParameters);
+    }
+
+    const response = await fetch(requestUrl, {
       credentials: 'include',
     });
     const result = await response.json();
@@ -123,6 +139,10 @@ export const api = {
     return result;
   },
 
+  batchUpdate: async (data) => {
+    return await httpClient.put(`${config.catalogApiUrl}/batch`, data);
+  },
+
   updateItem: async (catalogItemData) => {
     let response;
 
@@ -147,6 +167,10 @@ export const api = {
     const json = await response.json();
 
     throw new Error(json.error);
+  },
+
+  batchUpdateItems: async (data) => {
+    return httpClient.put(`${config.catalogApiUrl}/items/batch`, data);
   },
 
   delete: async (catalogId) => {

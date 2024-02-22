@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/vue-query';
 import { api } from '../../api/sites-api.js';
 
-export const getAllSites = async () => await api.getAll();
+export const getAllSites = async (queryParameters) => await api.getAll({ ...queryParameters });
 
 const queryOptions = {
   enabled: false,
@@ -11,6 +11,6 @@ const queryOptions = {
   refetchOnWindowFocus: false,
 };
 
-export function useSitesQuery() {
-  return useQuery(['sites'], getAllSites, queryOptions);
+export function useSitesQuery(queryParameters) {
+  return useQuery(['sites'], () => getAllSites(queryParameters), queryOptions);
 }

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/vue-query';
 import { api } from '../../api/catalog-api.js';
 
-export const getAllCatalogItems = async (data) => await api.getAllCatalogItems(data);
+export const getAllCatalogItems = async (data, queryParameters) =>
+  await api.getAllCatalogItems(data, { queryParameters });
 
 const queryOptions = {
   enabled: false,
@@ -11,6 +12,6 @@ const queryOptions = {
   refetchOnWindowFocus: false,
 };
 
-export function useCatalogItemsQuery(data) {
-  return useQuery(['catalogItems'], () => getAllCatalogItems(data), queryOptions);
+export function useCatalogItemsQuery(data, queryParameters) {
+  return useQuery(['catalogItems'], () => getAllCatalogItems(data, queryParameters), queryOptions);
 }

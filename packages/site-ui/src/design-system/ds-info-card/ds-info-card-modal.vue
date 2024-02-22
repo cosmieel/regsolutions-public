@@ -3,7 +3,7 @@
     <DsImage
       v-if="image"
       :path="image"
-      :size="config.resize.infoCardModal[theme]"
+      :size="resizeConfig.infoCardModal[theme]"
       class="ds-info-card-modal__image"
       loading="lazy"
       :alt="title"
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 import { computed } from 'vue';

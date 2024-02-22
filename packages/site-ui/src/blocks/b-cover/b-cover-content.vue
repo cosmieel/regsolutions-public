@@ -14,7 +14,7 @@
             :path="block.images[0]"
             :alt="block.contentTitle"
             loading="lazy"
-            :size="config.resize.cover.content.single"
+            :size="resizeConfig.cover.content.single"
             class="b-cover-content__image"
           />
 
@@ -31,7 +31,7 @@
                 :path="image"
                 :alt="block.contentTitle"
                 loading="lazy"
-                :size="config.resize.cover.content.slide"
+                :size="resizeConfig.cover.content.slide"
                 class="b-cover-content__image"
               />
             </ds-slide>
@@ -86,7 +86,7 @@
 
 <script setup>
 import { useBreakPoint } from 'site-ui/src/break-point/break-point';
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
 import DsGradient from 'site-ui/src/design-system/ds-gradient/ds-gradient.vue';
@@ -104,11 +104,6 @@ defineProps({
   block: {
     type: Object,
     required: true,
-  },
-
-  storageHost: {
-    type: String,
-    default: '',
   },
 });
 

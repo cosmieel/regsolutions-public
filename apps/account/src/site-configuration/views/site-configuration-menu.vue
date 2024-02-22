@@ -35,14 +35,11 @@
             <div class="site-config-menu__title">
               <span>{{ currentSite.name }}</span>
             </div>
-            <a
-              :href="`https://${currentSite.domain}`"
+            <DomainLink
+              :domain="currentSite.domain"
+              :domain-free="currentSite.domainFree"
               class="site-config-menu__link"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <span>{{ currentSite.domain }}</span>
-            </a>
+            />
           </div>
         </div>
       </section>
@@ -316,6 +313,7 @@
 
 <script setup>
 import { IS_ADMIN_PROVIDE_KEY } from 'account/src/app-provider/constants';
+import DomainLink from 'account/src/components/domain-link.vue';
 import MediaImage from 'account/src/components/media/media-image.vue';
 import config from 'account/src/config/config.js';
 import { callDeletePageModal } from 'account/src/utility/modals/delete-page-modal';
@@ -343,8 +341,12 @@ const isPublishPending = ref(false);
 
 const publishSite = async () => {
   isPublishPending.value = true;
-  await siteConfigurationStore.publishSite();
-  isPublishPending.value = false;
+
+  try {
+    await siteConfigurationStore.publishSite();
+  } finally {
+    isPublishPending.value = false;
+  }
 };
 
 const handleUnPublishSite = async () =>
@@ -479,7 +481,7 @@ const closeSubscriptionNotExistsErrorMessage = () => {
   }
 
   &__link {
-    @apply block text-sm text-blue-600 leading-6 decoration-0 underline-offset-2 max-w-[120px] truncate;
+    @apply text-sm leading-6 max-w-[120px];
 
     &:hover {
       @apply decoration-1 underline;

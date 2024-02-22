@@ -4,6 +4,7 @@
       <label>
         <div class="ui-textarea__head">
           <span v-if="label" class="ui-textarea__label">{{ label }}</span>
+          <slot name="afterLabel" />
           <span v-if="counter" class="ui-textarea__counter">{{ currentCount }}/{{ counter }}</span>
         </div>
         <textarea
@@ -15,7 +16,7 @@
             'ui-textarea_invalid': errorMessage,
             'ui-textarea_disabled': isDisabled,
           }"
-          rows="3"
+          :rows="rows"
           :maxlength="maxLength || counter"
           @input="updateTextarea"
         ></textarea>
@@ -28,11 +29,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { useFieldCounter } from '../utility/composition/use-field-counter.js';
 
 const props = defineProps({
   modelValue: {
-    type: String,
+    type: [String, Number],
     default: '',
   },
 
@@ -61,6 +62,11 @@ const props = defineProps({
     default: '',
   },
 
+  rows: {
+    type: Number,
+    default: 3,
+  },
+
   isDisabled: {
     type: Boolean,
     default: false,
@@ -73,22 +79,7 @@ function updateTextarea(event) {
   emit('update:modelValue', event.target.value);
 }
 
-const currentCount = ref('');
-
-const setCurrentCount = (value) => {
-  currentCount.value = value.length > 0 ? value.length : '';
-};
-
-watch(
-  () => props.modelValue,
-  (value) => {
-    setCurrentCount(value);
-  }
-);
-
-onMounted(() => {
-  setCurrentCount(props.modelValue);
-});
+const { currentCount } = useFieldCounter(props);
 </script>
 
 <style lang="postcss" scoped>
@@ -122,7 +113,7 @@ onMounted(() => {
   }
 
   &__head {
-    @apply flex justify-between mb-2;
+    @apply flex gap-2 mb-2;
   }
 
   &__label {
@@ -130,7 +121,7 @@ onMounted(() => {
   }
 
   &__counter {
-    @apply text-sm leading-4 text-gray-400 text-right;
+    @apply text-sm leading-4 text-gray-400 text-right flex-grow;
   }
 }
 

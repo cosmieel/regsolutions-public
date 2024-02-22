@@ -1,6 +1,6 @@
 <template>
   <div v-if="isLoading">Загрузка...</div>
-  <div v-else-if="sitesList.length > 0">
+  <div v-else>
     <!--    <StartBlock />-->
     <SitesList />
   </div>
@@ -33,7 +33,7 @@ import { useUserSitesStore } from '../stores/user-sites-store.js';
 const router = useRouter();
 const userSitesStore = useUserSitesStore();
 const {
-  sitesList,
+  total,
   isSuccess,
   isLoading,
   isError,
@@ -46,7 +46,7 @@ const authStore = useAuthFormStore();
 const logout = async () => await authStore.logoutRequest();
 
 const redirectIfSitesListIsEmpty = (isSuccess) => {
-  if (isSuccess && sitesList.value.length === 0) {
+  if (isSuccess && !userSitesStore.isEmptySearchResult && total.value === 0) {
     router.push({ name: 'accountMainEmpty' });
   }
 };
@@ -57,7 +57,7 @@ const logoutIfNoAccess = async (isError) => {
   }
 };
 
-watch(isSuccess, (value) => {
+watch(total, (value) => {
   redirectIfSitesListIsEmpty(value);
 });
 
@@ -72,7 +72,6 @@ onBeforeMount(async () => {
 
 onUpdated(() => {
   logoutIfNoAccess(isError.value);
-  redirectIfSitesListIsEmpty(isSuccess.value);
 });
 
 const closeSubscriptionNotExistsErrorMessage = () => {

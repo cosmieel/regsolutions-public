@@ -44,7 +44,6 @@ const badgeClass = computed(() => {
   align-items: center;
   gap: 3px;
   border-radius: $radius-s;
-  backdrop-filter: $blur-m;
   @add-mixin b4;
 
   &_size {
@@ -86,20 +85,50 @@ const badgeClass = computed(() => {
 
   &_color {
     &_dark {
-      font-weight: 400;
       color: var(--font-primary-inverse);
       background-color: var(--bg-badge-overlay-dark);
+      backdrop-filter: $blur-m;
     }
 
     &_light {
-      font-weight: 500;
       color: var(--font-primary-inverse);
       background-color: var(--bg-badge-overlay-light);
+      backdrop-filter: $blur-m;
+    }
+
+    &_green {
+      color: var(--font-primary-inverse);
+      background-color: var(--bg-badge-green);
+    }
+
+    &_green-soft {
+      color: var(--font-success);
+      background-color: var(--bg-badge-green-soft);
+    }
+
+    &_orange {
+      color: var(--font-primary-inverse);
+      background-color: var(--bg-badge-orange);
+    }
+
+    &_orange-soft {
+      color: var(--font-warning);
+      background-color: var(--bg-badge-orange-soft);
+    }
+
+    &_red {
+      color: var(--font-primary-inverse);
+      background-color: var(--bg-badge-red);
+    }
+
+    &_red-soft {
+      color: var(--font-danger);
+      background-color: var(--bg-badge-red-soft);
     }
   }
 
   &__text {
-    font-weight: 400;
+    font-weight: 500;
     @add-mixin b5;
 
     @add-mixin desktop-all {

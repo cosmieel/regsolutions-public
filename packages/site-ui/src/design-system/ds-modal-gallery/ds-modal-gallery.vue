@@ -74,13 +74,16 @@
 
 <script setup>
 import { useBreakPoint } from 'site-ui/src/break-point/break-point';
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 import { notificationManager } from 'site-ui/src/design-system/ds-notification/manager/notification-manager.js';
 import DsSlide from 'site-ui/src/design-system/ds-slider/ds-slide.vue';
 import DsSlider from 'site-ui/src/design-system/ds-slider/ds-slider.vue';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { OPTIONS_KEY } from 'site-ui/src/services/constants/constants.js';
+import { copyConstructedUrl } from 'site-ui/src/services/copy-constructed-url/copy-constructed-url.js';
+import { downloadFile } from 'site-ui/src/services/download-file/download-file.js';
 import { getSizesByCount } from 'site-ui/src/services/get-sizes-by-count/get-sizes-by-count';
 import { lockBody } from 'site-ui/src/services/lock-body/lock-body.js';
 import { trimString } from 'site-ui/src/services/trim-string/trim-string.js';
@@ -88,7 +91,6 @@ import { unlockBody } from 'site-ui/src/services/unlock-body/unlock-body.js';
 import { onMounted, onUnmounted, onActivated, onDeactivated, ref, computed, inject } from 'vue';
 import { useEscapeKey } from '../../utility/composition/use-escape-key.js';
 import { useEvent } from '../../utility/composition/use-event.js';
-import { downloadFile } from '../../utility/download-file.js';
 
 const breakPoint = useBreakPoint();
 const options = inject(OPTIONS_KEY);
@@ -115,7 +117,7 @@ const trigger = event.target;
 const dsSliderReference = ref(null);
 
 const thumbnailsSizes = computed(() =>
-  getSizesByCount(property.images.length, 4, config.resize.gallery.modal.thumbnails.size)
+  getSizesByCount(property.images.length, 4, resizeConfig.gallery.modal.thumbnails.size)
 );
 
 useEscapeKey(closeModal);
@@ -158,11 +160,11 @@ const classList = computed(() => {
 });
 
 const downloadText = computed(() => {
-  return breakPoint.isMobileAll ? '' : 'Скачать';
+  return breakPoint.isMobileAll ? '' : localizer.t('gallery.download');
 });
 
 const linkText = computed(() => {
-  return breakPoint.isMobileAll ? '' : 'Копировать ссылку';
+  return breakPoint.isMobileAll ? '' : localizer.t('gallery.link');
 });
 
 function getKey(index) {
@@ -174,7 +176,7 @@ function setActiveSlide(index) {
 }
 
 function copy() {
-  navigator.clipboard.writeText(getMediaUrl(property.images[activeImage.value].url));
+  copyConstructedUrl(property.images[activeImage.value].url, options.hosts);
 
   notificationManager.add({
     type: 'info',
@@ -182,15 +184,13 @@ function copy() {
     item: {
       type: 'plain',
       icon: 'checkmark',
-      title: 'Ссылка скопирована',
+      title: localizer.t('notifier.link'),
     },
   });
 }
 
 async function upload() {
-  let url = getMediaUrl(property.images[activeImage.value].url);
-
-  await downloadFile(url);
+  await downloadFile(property.images[activeImage.value].url, options.hosts);
 
   notificationManager.add({
     type: 'info',
@@ -198,7 +198,7 @@ async function upload() {
     item: {
       type: 'plain',
       icon: 'checkmark',
-      title: 'Изображение скачано',
+      title: localizer.t('notifier.image'),
     },
   });
 }
@@ -211,20 +211,6 @@ function handleSpaceKey(event) {
   if (event.key === ' ') {
     dsSliderReference.value.goToNext();
   }
-}
-
-function getMediaUrl(url) {
-  try {
-    const currentUrl = new URL(url);
-
-    if (currentUrl.origin) {
-      return url;
-    }
-  } catch {
-    return `${options.hosts.storage}${url}`;
-  }
-
-  return `${options.hosts.storage}${url}`;
 }
 </script>
 

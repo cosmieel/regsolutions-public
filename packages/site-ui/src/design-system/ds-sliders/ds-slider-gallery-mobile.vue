@@ -26,7 +26,7 @@
         :path="item.url"
         :alt="'image-' + (index + 1)"
         loading="lazy"
-        :size="config.resize.gallery.mobile"
+        :size="resizeConfig.gallery.hero.mobile"
         class="ds-slider-gallery-mobile__image ds-slider-gallery-mobile__image_type_slide"
         @click="emit('click', index)"
       />
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs.js';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsImage from 'site-ui/src/design-system/ds-image/ds-image.vue';
 import { getPaginationStyle } from 'site-ui/src/design-system/ds-slider/get-pagination-style';
 import { ref, onMounted } from 'vue';

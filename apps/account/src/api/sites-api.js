@@ -1,20 +1,16 @@
+import { FetchHttpClient } from 'account/src/data/network/fetch-http-client-impl.js';
 import { constructQueryParameters } from 'account/src/data/network/utility/construct-query-parameters.js';
 import config from './config.js';
 
+const httpClient = new FetchHttpClient();
+
 export const api = {
-  getAll: async () => {
-    const response = await fetch(`${config.siteApiUrl}`, { credentials: 'include' });
-    const result = await response.json();
+  getAll: async (parameters = {}) => {
+    return httpClient.get(`${config.siteApiUrl}`, parameters);
+  },
 
-    if (result?.error) {
-      throw new Error(result.error);
-    }
-
-    if (!result) {
-      return [];
-    }
-
-    return result;
+  getAllForAdmin: async (parameters = {}) => {
+    return httpClient.get(`${config.sitesAdminApiUrl}`, parameters);
   },
 
   /**
@@ -67,26 +63,7 @@ export const api = {
   },
 
   update: async (data) => {
-    const response = await fetch(`${config.siteApiUrl}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
-
-    if (result?.code) {
-      throw new Error(result.code);
-    }
-
-    if (result?.error) {
-      throw new Error(result.error);
-    }
-
-    return result;
+    return httpClient.put(config.siteApiUrl, data);
   },
 
   delete: async (siteId) => {
@@ -173,6 +150,12 @@ export const api = {
     return result;
   },
 
+  validateDomainNew: async (domain) => {
+    return httpClient.post(`${config.siteApiUrl}/validate-domain`, {
+      domain,
+    });
+  },
+
   lookupDomain: async (domain) => {
     const response = await fetch(`${config.siteApiUrl}/lookup-domain`, {
       method: 'POST',
@@ -194,6 +177,12 @@ export const api = {
     }
 
     return result;
+  },
+
+  lookupDomainNew: async (domain) => {
+    return httpClient.post(`${config.siteApiUrl}/lookup-domain`, {
+      domain,
+    });
   },
 
   upload: async (data) => {

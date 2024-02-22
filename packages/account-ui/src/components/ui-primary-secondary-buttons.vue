@@ -5,6 +5,7 @@
       is-outline
       size="big"
       :disabled="disabledSecondary"
+      :pending="pendingSecondary"
       @click="$emit('on-secondary-click')"
     >
       <slot name="secondary" />
@@ -14,6 +15,7 @@
       class="primary-secondary-buttons__button primary-secondary-buttons__button_primary"
       size="big"
       :disabled="disabledPrimary"
+      :pending="pendingPrimary"
       @click="$emit('on-primary-click')"
     >
       <slot name="primary" />
@@ -31,7 +33,19 @@ defineProps({
     default: false,
   },
 
+  pendingPrimary: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+
   disabledSecondary: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+
+  pendingSecondary: {
     type: Boolean,
     required: false,
     default: false,

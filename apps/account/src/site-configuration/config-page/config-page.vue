@@ -3,22 +3,7 @@
   <section v-else-if="currentSite && currentPage" :key="currentPage.id" class="config-page">
     <SettingsBasic />
 
-    <UiCard :title="'Настройки SEO'">
-      <template #ui-card-button>
-        <UiButton
-          class="config-page__save"
-          size="small"
-          :disabled="needSaveButtonDisable || isSavePending"
-          :pending="isSavePending"
-          @click="updatePageData"
-        >
-          Сохранить
-        </UiButton>
-      </template>
-      <template #default>
-        <PageSettingsSeo v-model:pageKeywords="currentPage.keywords" />
-      </template>
-    </UiCard>
+    <SettingsSeo />
 
     <UiCard :title="'Изображения страницы'">
       <template #ui-card-button>
@@ -50,9 +35,9 @@ import { UiButton, UiCard } from 'account-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import PageSettingsImages from './page-settings-images.vue';
-import PageSettingsSeo from './page-settings-seo.vue';
 import SettingsBasic from './settings-basic/settings-basic.vue';
 import SettingsCustom from './settings-custom/settings-custom.vue';
+import SettingsSeo from './settings-seo/settings-seo.vue';
 import { useUnsavedNotification } from '../../utility/notifications/unsaved/use-unsaved-notification.js';
 import { usePageConfigurationStore } from '../stores/page-configuration-store.js';
 import { useSiteConfigurationStore } from '../stores/site-configuration-store.js';

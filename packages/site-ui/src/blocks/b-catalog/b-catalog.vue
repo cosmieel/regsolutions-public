@@ -15,13 +15,18 @@
             :button="getButtonParameters()"
             :image="item.images?.[0]"
             :badge="item.badge"
-            :resizer-params="imageSize"
+            :resizer-params="resizeConfig.products"
             @click="clickToButtonProduct(item)"
           />
         </ds-list-item>
       </ds-list>
       <div v-if="itemsNumber < catalogItems.length" class="b-catalog__button-wrapper">
-        <DsButton theme="ghost" icon="chevron-m-down" text="Показать еще" @click="showMore" />
+        <DsButton
+          theme="ghost"
+          icon="chevron-m-down"
+          :text="localizer.t('cardGroup.show')"
+          @click="showMore"
+        />
       </div>
     </ds-container>
     <DsOrder
@@ -35,7 +40,7 @@
 </template>
 
 <script setup>
-import config from 'site-ui/src/configs/configs';
+import { resizeConfig } from 'site-ui/src/configs/resize-config.js';
 import DsButton from 'site-ui/src/design-system/ds-button/ds-button.vue';
 import { useCartStorage } from 'site-ui/src/design-system/ds-cart/cart-storage.js';
 import DsContainer from 'site-ui/src/design-system/ds-container/ds-container.vue';
@@ -44,7 +49,7 @@ import DsList from 'site-ui/src/design-system/ds-list/ds-list.vue';
 import { notificationManager } from 'site-ui/src/design-system/ds-notification/manager/notification-manager.js';
 import DsOrder from 'site-ui/src/design-system/ds-order/ds-order.vue';
 import DsProductCard from 'site-ui/src/design-system/ds-product-card/ds-product-card.vue';
-import { getSizesByCount } from 'site-ui/src/services/get-sizes-by-count/get-sizes-by-count';
+import { localizer } from 'site-ui/src/localizer/localizer';
 import { trimString } from 'site-ui/src/services/trim-string/trim-string.js';
 import { useSiteMode } from 'site-ui/src/site-mode/site-mode';
 import { computed, ref } from 'vue';
@@ -72,11 +77,6 @@ const property = defineProps({
     type: Object,
     required: true,
   },
-
-  storageHost: {
-    type: String,
-    default: '',
-  },
 });
 
 const itemsNumber = ref(6);
@@ -103,10 +103,6 @@ const currentItems = computed(() => {
   return catalogItems.value.slice(0, itemsNumber.value);
 });
 
-const imageSize = computed(() =>
-  getSizesByCount(currentItems.value.length, 3, config.resize.products.size)
-);
-
 function showMore() {
   if (siteMode.isEdit) {
     return;
@@ -123,14 +119,14 @@ function clickToButtonProduct(item) {
     catalog.value.checkout.type === 'CART' &&
     item.price.stock > cartStorage.getItemCount(item.id)
   ) {
-    cartStorage.addItem(item.id);
+    cartStorage.addItem(item);
     notificationManager.add({
       type: 'info',
       autoClose: true,
       item: {
         type: 'plain',
         icon: 'checkmark',
-        title: 'Добавлено в корзину',
+        title: localizer.t('notifier.cart'),
       },
     });
   }
@@ -147,7 +143,7 @@ function closeOrder() {
 }
 
 function getButtonParameters() {
-  const text = catalog.value.button?.text || 'Заказать';
+  const text = catalog.value.button?.text || localizer.t('cardGroup.order');
   const url = catalog.value.checkout.type === 'URL' ? catalog.value.checkout.url : '';
   const target = '_blank';
 

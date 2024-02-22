@@ -11,6 +11,9 @@
     :is-disabled="isDisabled"
     :error-message="field.errorMessage"
   >
+    <template v-if="hasAfterLabelSlot" #afterLabel>
+      <slot name="afterLabel" />
+    </template>
     <template v-if="hasLeftSlot" #left>
       <slot name="left" />
     </template>
@@ -26,6 +29,8 @@ import { useField } from 'vee-validate';
 import { computed, reactive, useSlots } from 'vue';
 
 const slots = useSlots();
+
+const hasAfterLabelSlot = computed(() => !!slots.afterLabel);
 
 const props = defineProps({
   name: {
